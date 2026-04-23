@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>週邊清單 V30</title>
+    <style>
+        :root { 
+            --main-blue: #5c7a91; --bg-active: #1a1e23; --bg-archive: #0d1117;
+            --card-bg: #252a31; --accent-blue: #4a6982; --accent-green: #3d6350; 
+            --price-green: #a6e3a1; 
+            --text-bright: #bbb;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-active); color: #eee; font-family: sans-serif; margin: 0; padding: 10px; overflow-x: hidden; padding-bottom: 90px; min-height: 100vh; transition: background 0.3s ease; }
+
+        /* Toast 提示 */
+        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #3d6350; color: #fff; padding: 10px 22px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 9999; pointer-events: none; white-space: nowrap; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* 日幣標籤 */
+        .jpy-tag { font-size: 11px; color: #8eb3cf; font-weight: normal; margin-left: 4px; }
+
+        /* 空狀態 */
+        .empty-state { text-align: center; color: #444; margin-top: 60px; line-height: 2; }
+        .empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+        .empty-state .empty-hint { font-size: 13px; color: #3d6350; }
+        
+        /* 導覽列 */
+        .tab-nav { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; position: sticky; top: 0; z-index: 100; background: inherit; padding: 5px 0; }
+        .tab { background: #333; color: #888; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        .tab.active { background: var(--main-blue); color: white; }
+        .icon-group { display: flex; align-items: center; gap: 15px; margin-left: auto; }
+        
+        /* 頁面滑動 */
+        #page-wrapper { display: flex; width: 200%; transition: transform 0.3s ease-out; }
+        .page-content { width: 50%; padding: 0 4px; flex-shrink: 0; }
+
+        /* 卡片與側滑 */
+        .swipe-container { position: relative; overflow: hidden; margin-bottom: 12px; border-radius: 12px; background: #000; }
+        .swipe-actions { position: absolute; right: 0; top: 0; height: 100%; display: flex; z-index: 1; }
+        .action-btn { height: 100%; border: none; color: white; font-weight: bold; width: 75px; font-size: 14px; }
+        .action-done { background: var(--accent-blue); } 
+        .action-del { background: var(--accent-green); }
+        
+        .card { background: var(--card-bg); padding: 14px; position: relative; z-index: 2; transition: transform 0.2s ease; display: flex; gap: 12px; min-height: 80px; }
+        .img-box { width: 65px; height: 65px; background: #1e2329; border-radius: 8px; flex-shrink: 0; border: 1px solid #333; display: flex; align-items: center; justify-content: center; overflow: hidden; color: #666; font-size: 12px; cursor: pointer; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .info { flex: 1; min-width: 0; }
+        .title-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+        .title { font-size: 18px; font-weight: bold; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 75%; }
+        .src-text { font-size: 11px; color: var(--text-bright); border-left: 1px solid #444; padding-left: 6px; }
+        .date-text { font-size: 12px; color: var(--text-bright); margin: 2px 0; }
+        .price-text { color: var(--price-green); font-size: 16px; font-weight: bold; margin-top: 4px; }
+        
+        .stat-tag { position: absolute; top: 10px; right: 12px; font-size: 10px; color: #8eb3cf; border: 1px solid #4a6982; background: rgba(74, 105, 130, 0.2); padding: 1px 5px; border-radius: 4px; }
+        .ctrl-group { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 4px; }
+        .btn-icon { background: none; border: none; color: #777; font-size: 18px; padding: 6px; }
+        
+        /* 下拉詳情 */
+        .detail-box { display: none; background: #1b2128; padding: 15px; border-top: 1px solid #333; position: relative; z-index: 2; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: #eee; }
+        .dai-tag { border: 1px solid var(--main-blue); color: var(--main-blue); padding: 0 3px; border-radius: 3px; font-size: 10px; margin-right: 6px; }
+        .note-area { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #444; font-size: 13px; color: var(--text-bright); }
+
+        /* 彈窗樣式 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 2000; overflow-y: auto; }
+        .modal { background: #252a31; width: 94%; margin: 20px auto; padding: 18px; border-radius: 12px; }
+        .modal h3 { margin: 0 0 15px 0; font-size: 18px; }
+        
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; background: #1a1e23; border: 1px solid #333; color: #fff; border-radius: 6px; font-size: 14px; }
+        .row-group { display: flex; gap: 8px; }
+        
+        .add-btn-container { display: flex; justify-content: flex-end; margin: 5px 0 15px 0; }
+        .add-link { background: #3a4752; color: #adc5d9; font-size: 12px; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        
+        .cfg-btn-export { flex: 1; background: #3a4752; color: #adc5d9; padding: 10px; border: none; border-radius: 6px; font-weight: bold; }
+        .cfg-btn-import { flex: 1; background: #324a41; color: #a1c7b9; padding: 10px; border: none; border-radius: 6px; font-weight: bold; }
+
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; background: var(--accent-green); color: white; border-radius: 50%; border: none; font-size: 28px; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body onload="init()">
+    <div class="tab-nav">
+        <button id="t-act" class="tab active" onclick="jumpTab('active')">進行中</button>
+        <button id="t-arc" class="tab" onclick="jumpTab('archive')">已封存</button>
+        <div class="icon-group">
+            <div id="sort-icon" onclick="toggleSortMenu()" style="position:relative;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4"/></svg>
+                <span id="sort-dot" style="position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:var(--main-blue);border-radius:50%;display:none;"></span>
+            </div>
+            <div onclick="openConfig()"><svg width="22" height="22" viewBox="0 0 24 24" fill="#666"><path d="M12 15.5c1.93 0 3.5-1.57 3.5-3.5s-1.57-3.5-3.5-3.5-3.5 1.57-3.5 3.5 1.57 3.5 3.5 3.5zm7.32-2.5c.05-.5.05-1 .05-1.5s0-1-.05-1.5l2.09-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65A.488.488 0 0 0 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.12.22-.07.49.12.64L4.68 10c-.05.5-.05 1-.05 1.5s0 1 .05 1.5l-2.09 1.63c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.31.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64L19.32 13z"/></svg></div>
+        </div>
+    </div>
+
+    <div id="page-wrapper">
+        <div id="list-active" class="page-content"></div>
+        <div id="list-archive" class="page-content"></div>
+    </div>
+
+    <button class="fab" onclick="openEdit(null)">+</button>
+    <div id="toast"></div>
+
+    <!-- 排序彈窗：點背景關閉，stopPropagation 防止冒泡 -->
+    <div id="sort-modal" class="overlay" onclick="overlayClick(event,'sort-modal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>排序方式</h3>
+            <button id="sort-btn-new" onclick="setSort('new')" style="width:100%;padding:15px;margin:5px 0;background:#333;color:white;border:none;border-radius:10px;">建立日期 (新→舊)</button>
+            <button id="sort-btn-old" onclick="setSort('old')" style="width:100%;padding:15px;margin:5px 0;background:#333;color:white;border:none;border-radius:10px;">建立日期 (舊→新)</button>
+            <button id="sort-btn-pre-new" onclick="setSort('pre-new')" style="width:100%;padding:15px;margin:5px 0;background:#333;color:white;border:none;border-radius:10px;">預購日期 (新→舊)</button>
+            <button id="sort-btn-pre-old" onclick="setSort('pre-old')" style="width:100%;padding:15px;margin:5px 0;background:#333;color:white;border:none;border-radius:10px;">預購日期 (舊→新)</button>
+        </div>
+    </div>
+
+    <!-- 編輯彈窗：點背景關閉 -->
+    <div id="edit-modal" class="overlay" onclick="overlayClick(event,'edit-modal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>編輯商品</h3>
+            <input type="text" id="in-name" placeholder="名稱">
+            <div class="row-group"><select id="in-src" style="flex:2;"></select><select id="in-stat" style="flex:1;"><option>未發貨</option><option>已發貨</option><option>集運中</option><option>已到貨</option></select></div>
+            <div class="row-group"><select id="in-yy" style="flex:1;"></select><select id="in-mm" style="flex:1;"><option value="">月份</option></select><select id="in-dd" style="flex:1;"><option value="">日期</option></select></div>
+            <input type="text" id="in-img" placeholder="圖片連結"><input type="text" id="in-link" placeholder="購買網址">
+            
+            <div style="margin-top:15px; color:var(--main-blue); font-size:14px; font-weight:bold;">個人購買項目</div>
+            <div id="me-rows"></div>
+            <div class="add-btn-container"><span class="add-link" onclick="addRow('me-rows')">+ 新增項目</span></div>
+
+            <div style="color:var(--main-blue); font-size:14px; font-weight:bold;">代購名單</div>
+            <div id="dai-rows"></div>
+            <div class="add-btn-container"><span class="add-link" onclick="addRow('dai-rows')">+ 新增代購</span></div>
+
+            <div style="display:flex; align-items:center; gap:10px;"><span>幣別</span><select id="in-cur" style="width:100px;"><option value="TWD">TWD</option><option value="JPY">JPY</option></select></div>
+            <textarea id="in-note" placeholder="備註..." style="height:60px;"></textarea>
+            
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="closeModal('edit-modal')" style="flex:1; padding:12px; background:#444; color:white; border:none; border-radius:8px;">取消</button>
+                <button onclick="saveItem()" style="flex:1; padding:12px; background:var(--main-blue); color:white; border:none; border-radius:8px;">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定彈窗：點背景關閉 -->
+    <div id="cfg-modal" class="overlay" onclick="overlayClick(event,'cfg-modal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>系統設定</h3>
+            <label>匯率 (JPY->TWD)</label><input type="number" id="cfg-rate" step="0.001">
+            <label>來源列表 (逗號分隔)</label><textarea id="cfg-srcs" style="height:80px;"></textarea>
+            <div style="display:flex; gap:10px; margin:10px 0;">
+                <button onclick="exportData()" class="cfg-btn-export">匯出備份</button>
+                <button onclick="importData()" class="cfg-btn-import">匯入還原</button>
+            </div>
+            <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:10px;">儲存並關閉</button>
+        </div>
+    </div>
+
+    <script>
+        var db = JSON.parse(localStorage.getItem('merch_v28_db') || '[]');
+        var cfg = JSON.parse(localStorage.getItem('merch_v28_cfg') || '{"rate":0.22,"srcs":"幽浮官網, Aniplex, 噗浪, 社團, 代購","sort":"new"}');
+        var curTab = 'active';
+        var startX = 0, startY = 0;
+        var editId = null;
+
+        function esc(s) {
+            return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function save() {
+            localStorage.setItem('merch_v28_db', JSON.stringify(db));
+        }
+
+        // Toast 提示
+        var toastTimer = null;
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(function() { t.classList.remove('show'); }, 2000);
+        }
+
+        // 更新排序按鈕高亮與小圓點
+        function updateSortUI() {
+            var keys = ['new','old','pre-new','pre-old'];
+            keys.forEach(function(k) {
+                var btn = document.getElementById('sort-btn-' + k);
+                if (btn) btn.style.background = (cfg.sort === k) ? 'var(--main-blue)' : '#333';
+            });
+            // 預設排序（new）不顯示圓點，其他顯示
+            document.getElementById('sort-dot').style.display = (cfg.sort === 'new') ? 'none' : 'block';
+        }
+
+        function init() {
+            var curYear = new Date().getFullYear();
+            var yyEl = document.getElementById('in-yy');
+            var mmEl = document.getElementById('in-mm');
+            var ddEl = document.getElementById('in-dd');
+            yyEl.innerHTML = '<option value="">年份</option>';
+            for (var y = curYear; y <= curYear + 5; y++) {
+                yyEl.innerHTML += '<option value="' + y + '年">' + y + '年</option>';
+            }
+            mmEl.innerHTML = '<option value="">月份</option>';
+            for (var m = 1; m <= 12; m++) {
+                mmEl.innerHTML += '<option value="' + m + '月">' + m + '月</option>';
+            }
+            // 日期選單（允許不選）
+            ddEl.innerHTML = '<option value="">日期</option>';
+            for (var d = 1; d <= 31; d++) {
+                ddEl.innerHTML += '<option value="' + d + '日">' + d + '日</option>';
+            }
+            updateSortUI();
+            setupSwipe();
+            render();
+        }
+
+        function setupSwipe() {
+            document.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }, {passive: true});
+
+            document.addEventListener('touchend', function(e) {
+                var dx = e.changedTouches[0].clientX - startX;
+                var dy = e.changedTouches[0].clientY - startY;
+                if (Math.abs(dx) > 120 && Math.abs(dy) < 50) {
+                    if (dx > 0 && curTab === 'archive') jumpTab('active');
+                    else if (dx < 0 && curTab === 'active') jumpTab('archive');
+                }
+            }, {passive: true});
+
+            // 1. 點空白處收回所有側滑卡片
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.swipe-container')) {
+                    document.querySelectorAll('.card').forEach(function(c) {
+                        c.style.transition = 'transform 0.2s';
+                        c.style.transform = 'translateX(0px)';
+                    });
+                }
+            });
+        }
+
+        function jumpTab(t) {
+            curTab = t;
+            document.getElementById('page-wrapper').style.transform = (t === 'active' ? 'translateX(0)' : 'translateX(-50%)');
+            document.body.style.background = (t === 'active' ? 'var(--bg-active)' : 'var(--bg-archive)');
+            document.getElementById('t-act').className = (t === 'active' ? 'tab active' : 'tab');
+            document.getElementById('t-arc').className = (t === 'archive' ? 'tab active' : 'tab');
+        }
+
+        function render() {
+            var sorted = [...db];
+            if (cfg.sort === 'new') {
+                sorted.reverse();
+            } else if (cfg.sort === 'old') {
+                // 保持原始順序
+            } else if (cfg.sort === 'pre-new' || cfg.sort === 'pre-old') {
+                sorted.sort(function(a, b) {
+                    var da = parseInt(
+                        (a.yy || '0000').replace('年', '') +
+                        (a.mm || '00').replace('月', '').padStart(2, '0') +
+                        (a.dd || '00').replace('日', '').padStart(2, '0')
+                    );
+                    var dbv = parseInt(
+                        (b.yy || '0000').replace('年', '') +
+                        (b.mm || '00').replace('月', '').padStart(2, '0') +
+                        (b.dd || '00').replace('日', '').padStart(2, '0')
+                    );
+                    return cfg.sort === 'pre-new' ? dbv - da : da - dbv;
+                });
+            }
+
+            var actH = '', arcH = '';
+            sorted.forEach(function(it) {
+                var totalVal = 0, detailH = '';
+                var hasDetail = ((it.me && it.me.length > 0) || (it.dai && it.dai.length > 0) || it.note);
+
+                if (it.me) it.me.forEach(function(m) {
+                    totalVal += (m.p * m.q);
+                    detailH += '<div class="detail-row"><span>' + esc(m.n) + ' (x' + esc(String(m.q)) + ')</span><span>' + m.p.toLocaleString() + '</span></div>';
+                });
+                if (it.dai) it.dai.forEach(function(d) {
+                    totalVal += (d.p * d.q);
+                    detailH += '<div class="detail-row" style="color:var(--main-blue)"><span><span class="dai-tag">代</span>' + esc(d.n) + ' (x' + esc(String(d.q)) + ')</span><span>' + d.p.toLocaleString() + '</span></div>';
+                });
+                if (it.note) detailH += '<div class="note-area">備註：' + esc(it.note) + '</div>';
+
+                // 3. 日幣顯示：台幣金額 + 小字（日幣）標籤
+                var displayPrice, jpyTag = '';
+                if (it.cur === 'JPY') {
+                    displayPrice = 'NT ' + Math.round(totalVal * cfg.rate).toLocaleString();
+                    jpyTag = '<span class="jpy-tag">（日幣）</span>';
+                } else {
+                    displayPrice = 'NT ' + totalVal.toLocaleString();
+                }
+
+                // 8. 日期顯示：有幾個顯示幾個
+                var dateStr = (it.yy || '') + (it.mm || '') + (it.dd || '');
+
+                var html =
+                    '<div class="swipe-container">' +
+                        '<div class="swipe-actions">' +
+                            '<button class="action-btn action-done" data-id="' + esc(it.id) + '" onclick="toggleDone(this.dataset.id)">' + (it.done ? '還原' : '封存') + '</button>' +
+                            '<button class="action-btn action-del" data-id="' + esc(it.id) + '" onclick="delItem(this.dataset.id)">刪除</button>' +
+                        '</div>' +
+                        '<div class="card" id="card-' + esc(it.id) + '" ontouchstart="cs(event)" ontouchmove="cm(event,\'' + esc(it.id) + '\')" ontouchend="ce(event,\'' + esc(it.id) + '\')" ' + (hasDetail ? 'onclick="cardClick(event,\'' + esc(it.id) + '\')"' : '') + ' style="' + (hasDetail ? 'cursor:pointer;' : '') + '">' +
+                            '<div class="stat-tag">' + esc(it.stat) + '</div>' +
+                            '<div class="img-box" data-link="' + esc(it.link) + '" onclick="event.stopPropagation();if(this.dataset.link) window.open(this.dataset.link)">' +
+                                (it.img ? '<img src="' + esc(it.img) + '" alt="">' : esc(it.src)) +
+                            '</div>' +
+                            '<div class="info">' +
+                                '<div class="title-row"><span class="title">' + esc(it.name) + '</span><span class="src-text">' + esc(it.src) + '</span></div>' +
+                                '<div class="date-text">' + esc(dateStr) + '</div>' +
+                                '<div class="price-text">' + esc(displayPrice) + ' 元' + jpyTag + '</div>' +
+                            '</div>' +
+                            '<div class="ctrl-group">' +
+                                (hasDetail ? '<button class="btn-icon btn-toggle" data-id="' + esc(it.id) + '" onclick="event.stopPropagation();toggleBox(this.dataset.id)">∨</button>' : '') +
+                                '<button class="btn-icon" data-id="' + esc(it.id) + '" onclick="event.stopPropagation();openEdit(this.dataset.id)">✎</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div id="box-' + esc(it.id) + '" class="detail-box">' + detailH + '</div>' +
+                    '</div>';
+
+                if (it.done) arcH += html; else actH += html;
+            });
+
+            // 4. 空狀態加引導文字
+            document.getElementById('list-active').innerHTML = actH ||
+                '<div class="empty-state"><span class="empty-icon">📦</span>無進行中項目<br><span class="empty-hint">點右下角 + 新增第一筆</span></div>';
+            document.getElementById('list-archive').innerHTML = arcH ||
+                '<div class="empty-state"><span class="empty-icon">🗂️</span>無封存項目</div>';
+        }
+
+        var cX = 0;
+        function cs(e) { cX = e.touches[0].clientX; e.stopPropagation(); }
+        function cm(e, id) {
+            var m = e.touches[0].clientX - cX;
+            if (m < 0 && m > -160) document.getElementById('card-' + id).style.transform = 'translateX(' + m + 'px)';
+            e.stopPropagation();
+        }
+        function ce(e, id) {
+            var m = e.changedTouches[0].clientX - cX;
+            var c = document.getElementById('card-' + id);
+            c.style.transition = 'transform 0.2s';
+            c.style.transform = (m < -60) ? 'translateX(-150px)' : 'translateX(0px)';
+            e.stopPropagation();
+        }
+
+        function cardClick(e, id) {
+            if (Math.abs(e.clientX - cX) > 10) return;
+            toggleBox(id);
+        }
+
+        function toggleBox(id) {
+            var b = document.getElementById('box-' + id);
+            var isOpen = b.style.display === 'block';
+            b.style.display = isOpen ? 'none' : 'block';
+            var btn = document.querySelector('.btn-toggle[data-id="' + id + '"]');
+            if (btn) btn.textContent = isOpen ? '∨' : '∧';
+        }
+
+        function addRow(tid, v) {
+            var d = v || {n: '', p: '', q: ''};
+            var div = document.createElement('div');
+            div.style.cssText = 'display:flex;gap:5px;margin-bottom:8px;';
+            div.innerHTML =
+                '<input type="text" class="d-n" value="' + esc(d.n) + '" placeholder="名稱" style="flex:3;margin:0;">' +
+                '<input type="number" class="d-p" value="' + esc(String(d.p)) + '" placeholder="價格" style="flex:2;margin:0;">' +
+                '<input type="number" class="d-q" value="' + esc(String(d.q)) + '" placeholder="量" style="width:50px;margin:0;">' +
+                '<span onclick="this.parentElement.remove()" style="padding:10px;color:#944;">✕</span>';
+            document.getElementById(tid).appendChild(div);
+        }
+
+        function openEdit(id) {
+            editId = id;
+            var it = (id === null)
+                ? {name: '', src: '', stat: '未發貨', yy: '', mm: '', dd: '', img: '', link: '', cur: 'TWD', me: [], dai: [], note: ''}
+                : db.find(function(x) { return x.id === id; });
+            if (!it) return;
+
+            document.getElementById('in-name').value = it.name;
+            document.getElementById('in-img').value = it.img;
+            document.getElementById('in-link').value = it.link;
+            document.getElementById('in-note').value = it.note;
+            document.getElementById('in-stat').value = it.stat;
+            document.getElementById('in-yy').value = it.yy;
+            document.getElementById('in-mm').value = it.mm;
+            document.getElementById('in-dd').value = it.dd || '';
+            document.getElementById('in-cur').value = it.cur;
+
+            var s = cfg.srcs.split(',');
+            var opt = '';
+            s.forEach(function(x) { opt += '<option>' + esc(x.trim()) + '</option>'; });
+            document.getElementById('in-src').innerHTML = opt;
+            document.getElementById('in-src').value = it.src || s[0].trim();
+
+            document.getElementById('me-rows').innerHTML = '';
+            (it.me && it.me.length ? it.me : [{n: '', p: '', q: ''}]).forEach(function(m) { addRow('me-rows', m); });
+            document.getElementById('dai-rows').innerHTML = '';
+            (it.dai || []).forEach(function(d) { addRow('dai-rows', d); });
+
+            document.getElementById('edit-modal').style.display = 'block';
+        }
+
+        function saveItem() {
+            var me = [], dai = [];
+            document.querySelectorAll('#me-rows>div').forEach(function(r) {
+                var n = r.querySelector('.d-n').value;
+                if (n) me.push({n: n, p: parseFloat(r.querySelector('.d-p').value) || 0, q: parseInt(r.querySelector('.d-q').value) || 1});
+            });
+            document.querySelectorAll('#dai-rows>div').forEach(function(r) {
+                var n = r.querySelector('.d-n').value;
+                if (n) dai.push({n: n, p: parseFloat(r.querySelector('.d-p').value) || 0, q: parseInt(r.querySelector('.d-q').value) || 1});
+            });
+
+            var isNew = editId === null;
+            var data = {
+                name: document.getElementById('in-name').value || '未命名',
+                src: document.getElementById('in-src').value,
+                stat: document.getElementById('in-stat').value,
+                yy: document.getElementById('in-yy').value,
+                mm: document.getElementById('in-mm').value,
+                dd: document.getElementById('in-dd').value,
+                img: document.getElementById('in-img').value,
+                link: document.getElementById('in-link').value,
+                cur: document.getElementById('in-cur').value,
+                note: document.getElementById('in-note').value,
+                me: me,
+                dai: dai
+            };
+
+            if (!isNew) {
+                var idx = db.findIndex(function(x) { return x.id === editId; });
+                if (idx > -1) {
+                    data.id = editId;
+                    data.done = db[idx].done;
+                    db[idx] = data;
+                }
+            } else {
+                data.id = String(Date.now());
+                data.done = false;
+                db.push(data);
+            }
+            save();
+            render();
+            closeModal('edit-modal');
+            // 2. 儲存後 Toast 提示
+            showToast(isNew ? '✓ 已新增「' + data.name + '」' : '✓ 已儲存');
+        }
+
+        function setSort(s) {
+            cfg.sort = s;
+            localStorage.setItem('merch_v28_cfg', JSON.stringify(cfg));
+            updateSortUI();
+            render();
+            closeModal('sort-modal');
+        }
+
+        function toggleSortMenu() {
+            updateSortUI();
+            document.getElementById('sort-modal').style.display = 'block';
+        }
+
+        function openConfig() {
+            document.getElementById('cfg-rate').value = cfg.rate;
+            document.getElementById('cfg-srcs').value = cfg.srcs;
+            document.getElementById('cfg-modal').style.display = 'block';
+        }
+
+        function saveConfig() {
+            cfg.rate = parseFloat(document.getElementById('cfg-rate').value) || 0.22;
+            cfg.srcs = document.getElementById('cfg-srcs').value;
+            localStorage.setItem('merch_v28_cfg', JSON.stringify(cfg));
+            render();
+            closeModal('cfg-modal');
+            showToast('✓ 設定已儲存');
+        }
+
+        function toggleDone(id) {
+            var it = db.find(function(x) { return x.id === id; });
+            if (it) {
+                it.done = !it.done;
+                save(); render();
+                showToast(it.done ? '📦 已封存「' + it.name + '」' : '↩ 已還原「' + it.name + '」');
+            }
+        }
+
+        function delItem(id) {
+            if (confirm('確定刪除？')) {
+                var it = db.find(function(x) { return x.id === id; });
+                var name = it ? it.name : '';
+                db = db.filter(function(x) { return x.id !== id; });
+                save(); render();
+                showToast('🗑 已刪除「' + name + '」');
+            }
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function overlayClick(e, id) {
+            if (e.target === e.currentTarget) closeModal(id);
+        }
+
+        function exportData() {
+            var json = JSON.stringify(db);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(json)
+                    .then(function() { showToast('✓ 數據已複製到剪貼簿'); })
+                    .catch(function() { prompt('請手動複製以下備份數據：', json); });
+            } else {
+                prompt('請手動複製以下備份數據：', json);
+            }
+        }
+
+        function importData() {
+            var s = prompt('貼上備份數據');
+            if (s) {
+                try {
+                    var parsed = JSON.parse(s);
+                    parsed.forEach(function(it) {
+                        if (!it.id) it.id = String(Date.now() + Math.random());
+                    });
+                    db = parsed;
+                    save(); render();
+                    showToast('✓ 導入成功，共 ' + db.length + ' 筆');
+                } catch(e) {
+                    alert('格式錯誤，請確認備份數據是否完整！');
+                }
+            }
+        }
+
+        (function migrateOldData() {
+            var changed = false;
+            db.forEach(function(it) {
+                if (!it.id) { it.id = String(Date.now() + Math.random()); changed = true; }
+            });
+            if (changed) save();
+        })();
+    </script>
+</body>
+</html>
