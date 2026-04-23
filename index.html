@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>週邊清單 V30</title>
+    <title>週邊清單</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1a1e23">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="週邊清單">
+    <link rel="apple-touch-icon" href="/icon_512.png">
     <style>
         :root { 
             --main-blue: #5c7a91; --bg-active: #1a1e23; --bg-archive: #0d1117;
@@ -535,6 +541,10 @@
             });
             if (changed) save();
         })();
+        // Service Worker 註冊
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
     </script>
 </body>
 </html>

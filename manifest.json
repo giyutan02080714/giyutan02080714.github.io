@@ -1,0 +1,22 @@
+{
+  "name": "週邊清單",
+  "short_name": "週邊清單",
+  "description": "週邊商品追蹤清單",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1e23",
+  "theme_color": "#1a1e23",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
