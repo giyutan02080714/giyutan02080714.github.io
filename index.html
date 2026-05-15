@@ -434,65 +434,12 @@
             return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
         }
 
-        // ── GitHub 同步 ──
-        var GITHUB_TOKEN = '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';
-        var GITHUB_REPO = 'giyutan02080714/giyutan02080714.github.io';
-        var GITHUB_FILE = 'data.json';
-        var githubSha = null;
-
-        async function githubLoad() {
-            try {
-                var res = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
-                    headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
-                });
-                if (res.status === 404) return false;
-                if (!res.ok) throw new Error('load failed');
-                var data = await res.json();
-                githubSha = data.sha;
-                var content = JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g, '')))));
-                if (content.db) db = content.db;
-                if (content.cfg) cfg = Object.assign(cfg, content.cfg);
-                return true;
-            } catch(e) {
-                console.error('GitHub load error:', e);
-                return false;
-            }
-        }
-
-        async function githubSave() {
-            try {
-                var content = btoa(unescape(encodeURIComponent(JSON.stringify({ db: db, cfg: cfg }))));
-                var body = { message: 'sync ' + new Date().toISOString(), content: content };
-                if (githubSha) body.sha = githubSha;
-                var res = await fetch('https://api.github.com/repos/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': 'token ' + GITHUB_TOKEN,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(body)
-                });
-                if (!res.ok) throw new Error('save failed');
-                var data = await res.json();
-                githubSha = data.content.sha;
-                return true;
-            } catch(e) {
-                console.error('GitHub save error:', e);
-                return false;
-            }
-        }
-
         function save() {
             try {
                 localStorage.setItem('merch_v28_db', JSON.stringify(db));
             } catch(e) {
                 showToast('⚠ 儲存失敗，請匯出備份');
             }
-            // 背景同步到 GitHub
-            githubSave().then(function(ok) {
-                if (!ok) console.warn('GitHub sync failed');
-            });
         }
 
         // Toast 提示
@@ -516,9 +463,8 @@
             updateSortUI();
             setupSwipe();
             setupDrawerSwipe();
-            applyCompactMode();
-            // 先用 localStorage 渲染，再從 GitHub 載入覆蓋
             render();
+            applyCompactMode();
             updateDrawerInfo();
             setTimeout(function() {
                 var nav = document.querySelector('.tab-nav-wrapper');
@@ -531,17 +477,6 @@
                     indicator.style.width = activeBtn.offsetWidth + 'px';
                 }
             }, 50);
-            // 從 GitHub 載入最新資料
-            githubLoad().then(function(ok) {
-                if (ok) {
-                    // 同步 localStorage
-                    try { localStorage.setItem('merch_v28_db', JSON.stringify(db)); } catch(e) {}
-                    try { localStorage.setItem('merch_v28_cfg', JSON.stringify(cfg)); } catch(e) {}
-                    render();
-                    updateDrawerInfo();
-                    showToast('☁ 已同步雲端資料');
-                }
-            });
         }
 
         function updateDrawerInfo() {
