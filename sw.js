@@ -1,4 +1,5 @@
-const CACHE_NAME = 'merch-v30';
+const CACHE_NAME = 'merch-' + new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon_192.png', '/icon_512.png'];
 
 self.addEventListener('install', function(e) {
@@ -22,11 +23,11 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
-// 網路優先，失敗才用快取（確保每次有網路都拿最新版）
+// 快取優先，沒有才去網路
 self.addEventListener('fetch', function(e) {
   e.respondWith(
-    fetch(e.request).catch(function() {
-      return caches.match(e.request);
+    caches.match(e.request).then(function(cached) {
+      return cached || fetch(e.request);
     })
   );
 });
