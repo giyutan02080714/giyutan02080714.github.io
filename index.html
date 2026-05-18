@@ -5,83 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>みるく的推活周邊管理</title>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#141820">
+    <meta name="theme-color" content="#F9F6F0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
     <meta name="apple-mobile-web-app-title" content="推活周邊">
     <link rel="apple-touch-icon" href="/icon_512.png">
     <style>
-        :root { 
-            --main-blue: #5c7a91;
-            --bg-active: #141820; --bg-archive: #0b0f14; --bg-drawer: #0f1318;
-            --card-bg: #252c36; --modal-bg: #1e242e; --input-bg: #141820;
-            --accent-blue: #4a6982; --accent-green: #3d6350;
-            --price-green: #a6e3a1;
-            --text-bright: #bbb; --text-muted: #666; --text-dim: #555; --text-faint: #444;
-            --stat-pending: #6b7280; --stat-shipping: #4a7c6b; --stat-arrived: #4a6982;
-            --action-archive: #2e5470; --action-delete: #2e5c47;
-            --border-strong: #2a2f38; --border-mid: #2a3040; --border-soft: #1e2530; --border-input: #333;
-            --radius-card: 12px; --radius-sm: 8px;
-            --seg-active-bg: #2e3d50; --seg-active-color: #8eb3cf;
+        :root {
+            /* ── 日系雜誌暖色 theme ── */
+            --main-blue: #2C5282;        /* 義勇藍 */
+            --accent-green: #276749;     /* 炭治郎綠 */
+
+            /* 背景層次 */
+            --bg-active:  #F9F6F0;       /* 主背景：溫白 */
+            --bg-archive: #F2EDE4;       /* 封存背景：稍深暖米 */
+            --bg-drawer:  #F4F0E8;       /* 抽屜背景 */
+            --card-bg:    #FFFFFF;       /* 卡片白 */
+            --modal-bg:   #EDE8DF;       /* 彈窗：比主視覺深一階 */
+
+            /* 文字 */
+            --text-bright: #2d3748;
+            --text-muted:  #718096;
+            --text-dim:    #8a9bb0;
+            --text-faint:  #a0aec0;
+            --price-green: #276749;
+
+            /* 狀態標籤 */
+            --stat-pending:  #718096;
+            --stat-shipping: #2C5282;
+            --stat-arrived:  #276749;
+
+            /* 側滑動作按鈕 */
+            --action-archive: #2C5282;   /* 義勇藍 */
+            --action-delete:  #276749;   /* 炭治郎綠 */
+
+            /* 邊框 */
+            --border-strong: #e2ddd5;
+            --border-mid:    #eae5dc;
+            --border-soft:   #EFF0EA;
+            --border-input:  #d6d0c8;
+
+            /* 圓角 */
+            --radius-card: 14px;
+            --radius-sm:   8px;
+
+            /* Segmented control */
+            --seg-active-bg:    #EAF0F8;
+            --seg-active-color: #2C5282;
         }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-active); color: #eee; font-family: sans-serif; margin: 0; padding: 10px; padding-top: 0; padding-bottom: 90px; min-height: 100vh; transition: background 0.3s ease; overscroll-behavior-y: contain; overscroll-behavior-x: none; }
+        body {
+            background: var(--bg-active);
+            color: var(--text-bright);
+            font-family: 'Zen Kaku Gothic New', 'Noto Sans TC', sans-serif;
+            margin: 0; padding: 10px; padding-top: 0; padding-bottom: 90px;
+            min-height: 100vh; transition: background 0.3s ease;
+            overscroll-behavior-y: contain; overscroll-behavior-x: none;
+        }
         #app-root { overflow-x: hidden; overscroll-behavior-x: none; }
 
-        /* Toast 提示 */
-        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: #3d6350; color: #fff; padding: 10px 22px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 9999; pointer-events: none; white-space: nowrap; max-width: 90vw; }
+        /* Toast */
+        #toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent-green); color: #fff; padding: 10px 22px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 9999; pointer-events: none; white-space: nowrap; max-width: 90vw; }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
 
         /* 日幣標籤 */
-        .jpy-tag { font-size: 11px; color: #8eb3cf; font-weight: normal; margin-left: 4px; }
+        .jpy-tag { font-size: 11px; color: var(--main-blue); font-weight: normal; margin-left: 4px; opacity: 0.7; }
 
         /* 空狀態 */
-        .empty-state { text-align: center; color: #444; margin-top: 60px; line-height: 2; }
-        .empty-state .empty-icon { font-size: 36px; display: block; margin-bottom: 8px; }
-        .empty-state .empty-hint { font-size: 13px; color: #3d6350; }
-        
-        /* 導覽列 */
+        .empty-state { text-align: center; color: var(--text-muted); margin-top: 60px; line-height: 2; }
+        .empty-state .empty-icon { display: flex; justify-content: center; margin-bottom: 12px; }
+        .empty-state .empty-hint { font-size: 13px; color: var(--accent-green); }
+
+        /* 導覽列 — 水平對齊 */
         .tab-nav-wrapper { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--bg-active); padding: 0 10px; transition: background 0.3s ease; }
         .tab-nav-wrapper.bg-archive { background: var(--bg-archive); }
-        .tab-nav-inner { display: flex; align-items: center; border-bottom: 1px solid var(--border-strong); position: relative; height: 50px; }
-        .hamburger-btn { background: none; border: none; color: #888; padding: 4px 10px 4px 0; cursor: pointer; display: flex; align-items: center; flex-shrink: 0; }
-        .tabs-group { display: flex; position: relative; flex: 1; align-self: stretch; align-items: flex-end; }
-        .tab { background: transparent; color: var(--text-muted); border: none; padding: 8px 10px 10px; font-weight: bold; font-size: 14px; position: relative; transition: color 0.2s; cursor: pointer; white-space: nowrap; }
-        .tab.active { color: #fff; }
+        .tab-nav-inner { display: flex; align-items: center; border-bottom: 1px solid var(--border-strong); position: relative; height: 48px; }
+        .hamburger-btn { background: none; border: none; color: var(--text-muted); padding: 4px 10px 4px 0; cursor: pointer; display: flex; align-items: center; flex-shrink: 0; align-self: center; }
+        .tabs-group { display: flex; position: relative; flex: 1; align-self: stretch; align-items: center; }
+        .tab { background: transparent; color: var(--text-muted); border: none; padding: 0 10px; height: 100%; font-weight: bold; font-size: 14px; font-family: inherit; position: relative; transition: color 0.2s; cursor: pointer; white-space: nowrap; display: flex; align-items: center; }
+        .tab.active { color: var(--text-bright); }
         #tab-indicator { position: absolute; bottom: 0; height: 2px; background: var(--main-blue); border-radius: 2px; transition: left 0.25s ease-out, width 0.25s ease-out; }
-        .seg-ctrl { display: flex; background: var(--border-soft); border-radius: var(--radius-sm); padding: 3px; gap: 2px; margin: 0 6px; flex-shrink: 0; }
-        .seg-btn { background: transparent; border: none; color: var(--text-dim); padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
+        .seg-ctrl { display: flex; background: var(--border-soft); border-radius: var(--radius-sm); padding: 3px; gap: 2px; margin: 0 6px; flex-shrink: 0; align-self: center; border: 1px solid var(--border-strong); }
+        .seg-btn { background: transparent; border: none; color: var(--text-muted); padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: bold; font-family: inherit; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
         .seg-btn.active { background: var(--seg-active-bg); color: var(--seg-active-color); }
-        .search-icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; flex-shrink: 0; }
+        .search-icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; flex-shrink: 0; align-self: center; }
 
         /* 搜尋欄 */
         #search-container { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.25s ease; opacity: 0; padding: 0 2px; }
         #search-container.open { max-height: 52px; opacity: 1; }
-        #search-input { width: 100%; padding: 8px 12px; background: var(--border-soft); border: 1px solid var(--border-input); color: #fff; border-radius: var(--radius-sm); font-size: 14px; margin: 6px 0 4px 0; box-sizing: border-box; }
+        #search-input { width: 100%; padding: 8px 12px; background: #fff; border: 1px solid var(--border-input); color: var(--text-bright); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; margin: 6px 0 4px 0; box-sizing: border-box; }
 
         /* ── 側邊抽屜 ── */
         #drawer-overlay { position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0); pointer-events: none; transition: background 0.28s ease; }
         #drawer-overlay.open { pointer-events: auto; }
-        #drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 151; background: var(--bg-drawer); transform: translateX(-100%); display: flex; flex-direction: column; border-right: 1px solid var(--border-strong); will-change: transform; overflow-y: auto; }
+        #drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; z-index: 151; background: var(--bg-drawer); transform: translateX(-100%); display: flex; flex-direction: column; border-right: 1px solid var(--border-strong); will-change: transform; overflow-y: auto; box-shadow: 4px 0 24px rgba(0,0,0,0.10); }
         #drawer.open { transform: translateX(0); }
-        .drawer-header { padding: 52px 20px 16px; border-bottom: 1px solid var(--border-strong); }
-        .drawer-title { font-size: 17px; font-weight: bold; color: #fff; }
-        .drawer-subtitle { font-size: 12px; color: #99a; margin-top: 3px; }
-        .drawer-section { padding: 8px 0; border-bottom: 1px solid var(--border-soft); }
-        .drawer-section-label { font-size: 11px; color: #888; font-weight: bold; padding: 6px 20px 2px; letter-spacing: 0.05em; text-transform: uppercase; }
-        .drawer-item { display: flex; align-items: center; gap: 14px; padding: 13px 20px; cursor: pointer; transition: background 0.15s; color: #ddd; font-size: 14px; }
-        .drawer-item:active { background: var(--border-soft); }
-        .drawer-item svg { flex-shrink: 0; }
+        .drawer-header { padding: 36px 20px 16px; border-bottom: 1px solid var(--border-strong); }
+        .drawer-title { font-size: 17px; font-weight: bold; color: var(--text-bright); }
+        .drawer-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+        .drawer-section { padding: 8px 0; border-bottom: 1px solid var(--border-strong); }
+        .drawer-section-label { font-size: 11px; color: var(--text-muted); font-weight: bold; padding: 6px 20px 2px; letter-spacing: 0.08em; text-transform: uppercase; }
+        .drawer-item { display: flex; align-items: center; gap: 14px; padding: 13px 20px; cursor: pointer; transition: background 0.15s; color: var(--text-bright); font-size: 14px; }
+        .drawer-item:active { background: var(--border-strong); }
+        .drawer-item svg { flex-shrink: 0; stroke: var(--text-muted); }
         .drawer-item-label { flex: 1; }
-        .drawer-item-value { font-size: 12px; color: #99a; }
-        /* 排序：四選項，選中直接亮起 */
+        .drawer-item-value { font-size: 12px; color: var(--text-muted); }
         .drawer-sort-group { padding: 4px 12px 8px; display: flex; flex-direction: column; gap: 2px; }
-        .sort-opt { padding: 9px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; color: #aaa; transition: all 0.15s; }
-        .sort-opt:active { background: var(--border-soft); }
-        .sort-opt.active { background: var(--seg-active-bg); color: var(--seg-active-color); }
+        .sort-opt { padding: 9px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.15s; }
+        .sort-opt:active { background: var(--border-strong); }
+        .sort-opt.active { background: var(--seg-active-bg); color: var(--seg-active-color); font-weight: bold; }
         .drawer-footer { margin-top: auto; padding: 16px 20px; }
-        .drawer-version { font-size: 11px; color: #666; text-align: center; }
-        .edge-hint { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60px; border-radius: 0 3px 3px 0; background: rgba(92,122,145,0.4); pointer-events: none; z-index: 5; opacity: 0; transition: opacity 0.3s; }
+        .drawer-version { font-size: 11px; color: var(--text-muted); text-align: center; }
+        .edge-hint { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60px; border-radius: 0 3px 3px 0; background: rgba(44,82,130,0.35); pointer-events: none; z-index: 5; opacity: 0; transition: opacity 0.3s; }
         .edge-hint.show { opacity: 1; }
         #page-wrapper { display: flex; width: 200%; transition: transform 0.3s ease-out; margin-top: 8px; }
         .page-content { width: 50%; padding: 0 4px; flex-shrink: 0; }
@@ -89,60 +126,118 @@
         /* 卡片與側滑 */
         .card-wrap { margin-bottom: 0; }
         .swipe-container { position: relative; margin-bottom: 0; }
-        .swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: #000; width: 100%; }
+        .swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--border-soft); width: 100%; }
         .swipe-container.pinned-container > .swipe-area { border-left: 3px solid var(--main-blue); }
         .swipe-btns { position: absolute; right: 0; top: 0; bottom: 0; width: 160px; display: flex; z-index: 1; }
-        .action-btn { width: 80px !important; min-width: 80px !important; max-width: 80px !important; flex: 0 0 80px !important; border: none; color: white; font-weight: bold; font-size: 14px; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+        .action-btn { width: 80px !important; min-width: 80px !important; max-width: 80px !important; flex: 0 0 80px !important; border: none; color: white; font-weight: bold; font-size: 14px; font-family: inherit; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
         .action-done { background: var(--action-archive); }
         .action-del { background: var(--action-delete); }
         .no-detail-gap { margin-bottom: 4px; }
-        .detail-box { background: #131720; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.35s ease-out; margin-bottom: 4px; }
+        /* 展開明細區 */
+        .detail-box { background: #EDE7DC; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.35s ease-out; margin-bottom: 4px; }
         .detail-box.open { max-height: 800px; }
-        .detail-inner { padding: 15px; border-top: 1px solid var(--border-mid); transform: translateY(-8px); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease; }
+        .detail-inner { padding: 15px; border-top: 1px solid var(--border-strong); transform: translateY(-8px); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease; }
         .detail-box.open .detail-inner { transform: translateY(0); opacity: 1; }
-        .card { background: var(--card-bg); padding: 14px; position: relative; z-index: 2; transition: transform 0.2s ease; display: flex; gap: 12px; min-height: 80px; }
+        /* 展開時 swipe-area 下方圓角移除，避免缺角 */
+        .swipe-area.expanded { border-radius: var(--radius-card) var(--radius-card) 0 0; }
+        .cc-swipe-area.expanded { border-radius: var(--radius-card) var(--radius-card) 0 0; }
+
+        /* 封存展開區用更深背景 */
+        #list-archive .detail-box { background: #DDD6C8; }
+        #list-archive .detail-compact { background: #DDD6C8; }
+
+        /* 按鈕動畫 — 輕微按壓回饋 */
+        .btn-icon:active { transform: scale(0.88); }
+        .btn-icon.open:active { transform: rotate(180deg) scale(0.88); }
+        .action-btn { transition: filter 0.1s ease; }
+        .action-btn:active { filter: brightness(0.88); }
+        .seg-btn:active { transform: scale(0.92); }
+        .search-icon-btn:active { transform: scale(0.88); }
+        .hamburger-btn:active { transform: scale(0.88); }
+        .add-link:active { opacity: 0.7; transform: scale(0.95); }
+        .drawer-item { transition: background 0.15s, transform 0.1s; }
+        .drawer-item:active { background: var(--border-strong); transform: scale(0.98); }
+        .sort-opt { transition: all 0.15s; }
+        .sort-opt:active { transform: scale(0.97); }
+        .year-header:active { background: var(--border-strong); transform: scale(0.99); }
+        .cc-btn:active { transform: scale(0.85) !important; }
+
+        /* 彈窗內所有按鈕（關閉/儲存/取消/確認刪除等）*/
+        .modal button {
+            transition: transform 0.1s ease, opacity 0.1s ease;
+        }
+        .modal button:active {
+            transform: scale(0.95);
+            opacity: 0.82;
+        }
+
+        /* ── 防止長按選字 ── */
+        .card, .card-compact,
+        .swipe-container, .cc-swipe-container,
+        .info, .cc-body, .title, .cc-name, .cc-sub, .cc-price,
+        .price-text, .date-text, .src-text, .stat-tag, .img-box,
+        .year-header, .detail-inner, .detail-box, .detail-compact {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* profile-modal 動畫已在下方統一定義 */
+        .card { background: var(--card-bg); padding: 14px; position: relative; z-index: 2; transition: transform 0.2s ease; display: flex; gap: 12px; min-height: 80px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
         .card.pinned { background: var(--card-bg); }
-        .img-box { width: 65px; height: 65px; background: #1e2329; border-radius: 10px; flex-shrink: 0; border: 1px solid var(--border-input); display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+        .img-box { width: 65px; height: 65px; background: var(--border-soft); border-radius: 10px; flex-shrink: 0; border: 1px solid var(--border-input); display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--text-muted); font-size: 12px; cursor: pointer; }
         .img-box img { width: 100%; height: 100%; object-fit: cover; }
-        
+
         .info { flex: 1; min-width: 0; }
         .title-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
-        .title { font-size: 18px; font-weight: bold; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 75%; }
-        .src-text { font-size: 11px; color: #aaa; border-left: 1px solid #555; padding-left: 6px; }
-        .date-text { font-size: 12px; color: #aaa; margin: 2px 0; }
+        .title { font-size: 17px; font-weight: bold; color: var(--text-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 75%; }
+        .src-text { font-size: 11px; color: var(--text-muted); border-left: 1px solid var(--border-input); padding-left: 6px; }
+        .date-text { font-size: 12px; color: var(--text-muted); margin: 2px 0; }
         .price-text { color: var(--price-green); font-size: 16px; font-weight: bold; margin-top: 4px; }
 
-        /* 狀態標籤：半透明填充 + 對應亮色文字 */
-        .stat-tag { position: absolute; top: 10px; right: 12px; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.3px; }
-        .stat-pending { color: #b0b8c4; background: rgba(107,114,128,0.25); }
-        .stat-shipping { color: #7dd4bc; background: rgba(74,124,107,0.3); }
-        .stat-arrived { color: #7db3cf; background: rgba(74,105,130,0.3); }
+        /* 狀態標籤 */
+        .stat-tag { position: absolute; top: 10px; right: 12px; font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 700; letter-spacing: 0.3px; }
+        .stat-pending  { color: #5a6478; background: #e8eaf0; border: 1px solid #d0d5e0; }
+        .stat-shipping { color: #ffffff; background: #2C5282; border: 1px solid #2C5282; }
+        .stat-arrived  { color: #ffffff; background: #276749; border: 1px solid #276749; }
 
-        .ctrl-group { position: absolute; bottom: 6px; right: 4px; display: flex; gap: 2px; }
-        .btn-icon { background: none; border: none; color: #666; font-size: 20px; padding: 8px; transition: transform 0.25s ease; min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; }
-        .btn-icon.open { transform: rotate(180deg); }
+        .ctrl-group { display: none; }
+        .btn-icon { display: none; }
 
-        /* 明細層次樣式 — C 版本 */
-        .detail-section-title { font-size: 11px; font-weight: bold; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin: 8px 0 5px; }
-        .detail-section-title.dai-title { color: #7ab0cc; margin-top: 12px; }
-        .detail-row { display: flex; justify-content: space-between; font-size: 13px; color: #fff; padding: 3px 0; }
-        .detail-price { color: #bbb; }
-        .detail-jpy { font-size: 11px; color: #999; margin-left: 4px; }
-        .dai-person-block { border-left: 2px solid #4a7a90; padding-left: 10px; margin-bottom: 8px; }
+        /* 展開區編輯按鈕列 */
+        .detail-action-row { display: flex; justify-content: flex-end; padding: 8px 0 2px; }
+        .detail-edit-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 1px solid var(--border-input); border-radius: 6px; background: #fff; color: var(--text-muted); font-size: 12px; font-family: inherit; cursor: pointer; transition: opacity 0.1s ease, transform 0.1s ease; }
+        .detail-edit-btn:active { opacity: 0.75; transform: scale(0.92); }
+        /* 無明細時：展開區只有按鈕，不顯示上方分隔線 */
+        .detail-box.no-content .detail-inner,
+        .detail-compact.no-content .detail-inner { border-top: none; padding-top: 6px; }
+        .detail-box.no-content .detail-action-row,
+        .detail-compact.no-content .detail-action-row { border-top: none; padding-top: 0; margin-top: 0; }
+
+        /* 明細展開區 */
+        .detail-section-title { font-size: 11px; font-weight: bold; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 8px 0 5px; }
+        .detail-section-title.dai-title { color: var(--main-blue); margin-top: 12px; opacity: 0.8; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-bright); padding: 3px 0; }
+        .detail-price { color: var(--text-muted); }
+        .detail-jpy { font-size: 11px; color: var(--text-muted); margin-left: 4px; }
+        .dai-person-block { border-left: 2px solid var(--main-blue); padding-left: 10px; margin-bottom: 8px; opacity: 0.85; }
         .dai-person-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-        .dai-person-name { font-size: 12px; color: #8ab8cc; font-weight: normal; }
-        .dai-subtotal { font-size: 11px; color: #6a9aaa; }
-        .dai-item-row { display: flex; justify-content: space-between; font-size: 12px; color: #7aaabb; padding: 2px 0 2px 4px; }
-        .dai-item-price { color: #6a9aaa; }
-        .dai-item-jpy { font-size: 10px; color: #5a8090; margin-left: 3px; }
-        .note-area { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #333; font-size: 13px; color: #aaa; }
+        .dai-person-name { font-size: 12px; color: var(--main-blue); font-weight: bold; }
+        .dai-subtotal { font-size: 11px; color: var(--text-muted); }
+        .dai-item-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-bright); padding: 2px 0 2px 4px; }
+        .dai-item-price { color: var(--text-muted); }
+        .dai-item-jpy { font-size: 10px; color: var(--text-muted); margin-left: 3px; }
+        .note-area { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-input); font-size: 13px; color: var(--text-muted); }
 
-        /* 彈窗動畫：從底部滑上 */
+        /* 彈窗動畫 */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0); display: none; z-index: 2000; overflow-y: auto; transition: background 0.25s ease; align-items: flex-start; }
-        .overlay.show { background: rgba(0,0,0,0.85); }
+        .overlay.show { background: rgba(80,60,40,0.45); }
         #del-modal { align-items: center; justify-content: center; }
         #del-modal .modal { transform: scale(0.92); opacity: 0; transition: transform 0.22s ease-out, opacity 0.2s ease; margin: 0; border-radius: var(--radius-card); }
         #del-modal.show .modal { transform: scale(1); opacity: 1; }
+        #import-modal.show .modal { transform: scale(1); opacity: 1; }
+        #import-modal { align-items: center; justify-content: center; }
+        #import-modal .modal { transform: scale(0.92); opacity: 0; transition: transform 0.22s ease-out, opacity 0.2s ease; margin: 0; border-radius: var(--radius-card); }
         #edit-modal { align-items: flex-end; justify-content: center; }
         #edit-modal .modal { width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0; transform: translateY(100%); opacity: 1; transition: transform 0.3s ease-out; max-height: 92vh; overflow-y: auto; margin: 0; }
         #edit-modal.show .modal { transform: translateY(0); }
@@ -152,52 +247,59 @@
         #srcs-modal { align-items: flex-end; justify-content: center; }
         #srcs-modal .modal { width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0; transform: translateY(100%); opacity: 1; transition: transform 0.3s ease-out; max-height: 92vh; overflow-y: auto; margin: 0; }
         #srcs-modal.show .modal { transform: translateY(0); }
-        .modal { background: var(--modal-bg); width: 100%; padding: 18px; border-radius: 0; }
-        .modal h3 { margin: 0 0 15px 0; font-size: 18px; }
+        /* profile 小視窗：縮放動畫 */
+        #profile-modal { align-items: center; justify-content: center; overflow-y: hidden; }
+        #profile-modal .modal { width: 260px; max-width: 80vw; border-radius: 20px; transform: scale(0.85); opacity: 0; transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1), opacity 0.18s ease; margin: 0 auto; padding: 28px 20px 20px; text-align: center; }
+        #profile-modal.show .modal { transform: scale(1); opacity: 1; }
+        #profile-modal .modal button { transition: transform 0.1s ease, opacity 0.1s ease; }
+        #profile-modal .modal button:active { transform: scale(0.94); opacity: 0.8; }
+        .modal { background: var(--modal-bg); width: 100%; padding: 18px; border-radius: 0; color: var(--text-bright); }
+        .modal h3 { margin: 0 0 15px 0; font-size: 18px; color: var(--text-bright); }
 
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; background: var(--input-bg); border: 1px solid var(--border-input); color: #fff; border-radius: 6px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; background: #fff; border: 1px solid var(--border-input); color: var(--text-bright); border-radius: 6px; font-size: 14px; font-family: inherit; }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
         .row-group { display: flex; gap: 8px; }
         .add-btn-container { display: flex; justify-content: flex-end; margin: 5px 0 15px 0; }
-        .add-link { background: #3a4752; color: #adc5d9; font-size: 12px; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-        .cfg-btn-export { flex: 1; background: #3a4752; color: #adc5d9; padding: 10px; border: none; border-radius: 6px; font-weight: bold; }
-        .cfg-btn-import { flex: 1; background: #324a41; color: #a1c7b9; padding: 10px; border: none; border-radius: 6px; font-weight: bold; }
+        .add-link { background: var(--seg-active-bg); color: var(--main-blue); font-size: 12px; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .cfg-btn-export { flex: 1; background: var(--seg-active-bg); color: var(--main-blue); padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-family: inherit; }
+        .cfg-btn-import { flex: 1; background: rgba(39,103,73,0.12); color: var(--accent-green); padding: 10px; border: none; border-radius: 6px; font-weight: bold; font-family: inherit; }
 
         /* 封存區年份分組 */
         .year-group { margin-bottom: 4px; }
-        .year-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-archive); border: 1px solid var(--border-mid); border-radius: var(--radius-card); margin-bottom: 4px; cursor: pointer; user-select: none; transition: background 0.2s; }
-        .year-header:active { background: #141b24; }
-        .year-header-left { font-size: 14px; font-weight: bold; color: var(--seg-active-color); display: flex; align-items: center; gap: 6px; }
+        .year-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--bg-archive); border: 1px solid var(--border-strong); border-radius: var(--radius-card); margin-bottom: 4px; cursor: pointer; user-select: none; transition: background 0.2s; }
+        .year-header:active { background: var(--border-strong); }
+        .year-header-left { font-size: 14px; font-weight: bold; color: var(--main-blue); display: flex; align-items: center; gap: 6px; }
         .year-arrow { display: inline-block; transition: transform 0.25s ease; font-style: normal; }
         .year-arrow.open { transform: rotate(180deg); }
-        .year-header-right { font-size: 12px; color: var(--text-dim); }
-        .year-body { display: none; overflow: visible; }
-        .year-body.open { display: block; height: auto !important; }
+        .year-header-right { font-size: 12px; color: var(--text-muted); }
+        .year-body { overflow: hidden; max-height: 0; transition: max-height 0.3s ease-out; }
+        .year-body.open { max-height: 9999px; transition: max-height 0.5s ease-in; }
 
         /* 代購對象分組 */
-        .dai-person { background: var(--input-bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; }
-        .dai-person-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border-strong); }
-        .dai-person-input { flex: 1; background: transparent; border: none; color: #eee; font-size: 14px; font-weight: bold; padding: 2px 0; outline: none; }
-        .dai-person-input::placeholder { color: #555; font-weight: normal; }
-        .dai-person-del { background: none; border: none; color: #944; font-size: 16px; padding: 2px 6px; cursor: pointer; }
+        .dai-person { background: #fff; border: 1px solid var(--border-input); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; }
+        .dai-person-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--border-input); }
+        .dai-person-input { flex: 1; background: transparent; border: none; color: var(--text-bright); font-size: 14px; font-weight: bold; padding: 2px 0; outline: none; font-family: inherit; }
+        .dai-person-input::placeholder { color: var(--text-muted); font-weight: normal; }
+        .dai-person-del { background: none; border: none; color: #C53030; font-size: 16px; padding: 2px 6px; cursor: pointer; }
         .dai-person-items { padding: 8px 10px; }
-        .dai-add-item { font-size: 12px; color: var(--main-blue); background: none; border: none; cursor: pointer; padding: 4px 0; margin-top: 2px; }
+        .dai-add-item { font-size: 12px; color: var(--main-blue); background: none; border: none; cursor: pointer; padding: 4px 0; margin-top: 2px; font-family: inherit; }
 
-        .field-label { font-size: 11px; color: #888; margin: 10px 0 3px 2px; letter-spacing: 0.5px; }
+        .field-label { font-size: 11px; color: var(--text-muted); margin: 10px 0 3px 2px; letter-spacing: 0.5px; }
         .section-label { font-size: 13px; font-weight: bold; color: var(--main-blue); margin-bottom: 8px; }
-        .fab { position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; background: var(--accent-green); color: white; border-radius: 50%; border: none; font-size: 28px; z-index: 999; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .fab:active { transform: scale(0.93); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; background: var(--accent-green); color: white; border-radius: 50%; border: none; font-size: 28px; z-index: 999; box-shadow: 0 4px 14px rgba(39,103,73,0.35); transition: transform 0.12s ease, box-shadow 0.12s ease; }
+        .fab:active { transform: scale(0.90); box-shadow: 0 2px 6px rgba(39,103,73,0.25); }
 
         /* 置頂分隔線 */
-        .pin-divider { height: 1px; background: rgba(255,255,255,0.12); margin: 8px 0; }
+        .pin-divider { height: 1px; background: var(--border-strong); margin: 8px 0; }
 
         /* 緊湊模式卡片 */
-        .card-compact { background: var(--card-bg); border-radius: 0; display: flex; align-items: center; padding: 8px 4px 8px 10px; position: relative; z-index: 2; transition: transform 0.2s ease; }
+        .card-compact { background: var(--card-bg); border-radius: 0; display: flex; align-items: center; padding: 8px 4px 8px 10px; position: relative; z-index: 2; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .cc-bar { width: 4px; height: 36px; border-radius: 4px; flex-shrink: 0; margin-right: 10px; }
-        .cc-bar-pending  { background: var(--stat-pending); }
-        .cc-bar-shipping { background: var(--stat-shipping); }
-        .cc-bar-arrived  { background: var(--stat-arrived); }
+        .cc-bar-pending  { background: #a0aec0; }
+        .cc-bar-shipping { background: var(--main-blue); }
+        .cc-bar-arrived  { background: var(--accent-green); }
         .cc-body { flex: 1; min-width: 0; margin-right: 8px; }
-        .cc-name { font-size: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cc-name { font-size: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bright); }
         .cc-sub  { font-size: 11px; color: var(--text-muted); margin-top: 3px; white-space: nowrap; }
         .cc-sep  { color: var(--border-input); margin: 0 5px; }
         .cc-price { width: 80px; text-align: right; font-size: 14px; font-weight: bold; color: var(--price-green); white-space: nowrap; flex-shrink: 0; }
@@ -207,13 +309,13 @@
         .cc-placeholder { width: 26px; flex-shrink: 0; }
 
         /* 列表細項展開 */
-        .detail-compact { background: #131720; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 5px; }
+        .detail-compact { background: #EDE7DC; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 5px; }
         .detail-compact.open { max-height: 500px; }
-        .detail-compact .detail-inner { padding: 12px; border-top: 1px solid var(--border-mid); opacity: 1; transform: none; }
+        .detail-compact .detail-inner { padding: 12px; border-top: 1px solid var(--border-strong); opacity: 1; transform: none; }
 
         /* 列表模式側滑結構 */
         .cc-swipe-container { position: relative; margin-bottom: 0; }
-        .cc-swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: #000; width: 100%; margin-bottom: 4px; }
+        .cc-swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--border-soft); width: 100%; margin-bottom: 4px; }
 
         /* 模式顯示控制 */
         .mode-compact .swipe-container { display: none; }
@@ -267,7 +369,7 @@
         <div class="drawer-header">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
                 <img src="data:image/png;base64,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" style="width:36px; height:36px; border-radius:8px; flex-shrink:0;">
-                <div class="drawer-title">みるく的推活</div>
+                <div class="drawer-title" onclick="openProfile()" style="cursor:pointer;">みるく的推活筆記</div>
             </div>
             <div class="drawer-subtitle" id="drawer-subtitle">0 件進行中・0 件已封存</div>
         </div>
@@ -304,7 +406,7 @@
             </div>
         </div>
         <div class="drawer-footer">
-            <div class="drawer-version">みるく的推活周邊管理 v1.0</div>
+            <div class="drawer-version">みるく的推活筆記 v2.0</div>
         </div>
     </div>
 
@@ -374,22 +476,36 @@
             <textarea id="in-note" placeholder="備註..." style="height:60px; margin:0 0 14px 0;"></textarea>
 
             <div style="display:flex; gap:10px;">
-                <button onclick="closeModal('edit-modal')" style="flex:1; padding:12px; background:#444; color:white; border:none; border-radius:8px;">取消</button>
-                <button id="save-btn" onclick="saveItem()" style="flex:1; padding:12px; background:var(--main-blue); color:white; border:none; border-radius:8px;">儲存</button>
+                <button onclick="closeModal('edit-modal')" style="flex:1; padding:12px; background:#e2ddd5; color:#2d3748; border:none; border-radius:8px; font-family:inherit; font-weight:bold;">取消</button>
+                <button id="save-btn" onclick="saveItem()" style="flex:1; padding:12px; background:var(--main-blue); color:white; border:none; border-radius:8px; font-family:inherit; font-weight:bold;">儲存</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 自我介紹彈窗 -->
+    <div id="profile-modal" class="overlay" onclick="overlayClick(event,'profile-modal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div id="profile-icon-wrap" style="margin-bottom:14px;"></div>
+            <div style="font-size:17px;font-weight:bold;color:var(--text-bright);margin-bottom:8px;">みるく</div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.7;">義炭相手左右完全固定</div>
+            <button onclick="closeModal('profile-modal')" style="margin-top:22px;width:100%;padding:11px;background:var(--seg-active-bg);color:var(--main-blue);border:none;border-radius:10px;font-family:inherit;font-weight:bold;font-size:14px;">關閉</button>
         </div>
     </div>
 
     <!-- 刪除確認彈窗 -->
     <div id="del-modal" class="overlay" onclick="overlayClick(event,'del-modal')">
         <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
-            <div style="font-size:28px;margin-bottom:10px;">🗑</div>
+            <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C53030" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                </svg>
+            </div>
             <h3 style="margin:0 0 8px 0;">確認刪除</h3>
-            <p id="del-name" style="color:#bbb;font-size:14px;margin:0 0 20px 0;"></p>
-            <p style="color:#888;font-size:12px;margin:0 0 20px 0;">刪除後無法復原</p>
+            <p id="del-name" style="color:#718096;font-size:14px;margin:0 0 20px 0;"></p>
+            <p style="color:#a0aec0;font-size:12px;margin:0 0 20px 0;">刪除後無法復原</p>
             <div style="display:flex;gap:10px;">
-                <button onclick="closeModal('del-modal')" style="flex:1;padding:12px;background:#333;color:white;border:none;border-radius:8px;">取消</button>
-                <button id="del-confirm-btn" style="flex:1;padding:12px;background:#7a3030;color:white;border:none;border-radius:8px;">確認刪除</button>
+                <button onclick="closeModal('del-modal')" style="flex:1;padding:12px;background:#e2ddd5;color:#2d3748;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">取消</button>
+                <button id="del-confirm-btn" style="flex:1;padding:12px;background:#C53030;color:white;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">確認刪除</button>
             </div>
         </div>
     </div>
@@ -403,7 +519,25 @@
                 <input type="number" id="cfg-rate" step="0.001" style="flex:1; margin:0;">
                 <span style="color:#888; white-space:nowrap; font-size:14px;">TWD</span>
             </div>
-            <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px;">儲存並關閉</button>
+            <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px; font-family:inherit; font-weight:bold;">儲存並關閉</button>
+        </div>
+    </div>
+
+    <!-- 匯入確認彈窗 -->
+    <div id="import-modal" class="overlay" onclick="overlayClick(event,'import-modal')">
+        <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+            <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C53030" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <h3 style="margin:0 0 8px 0;">確認匯入</h3>
+            <p style="color:#718096;font-size:14px;margin:0 0 6px 0;">此操作將覆蓋目前所有資料</p>
+            <p style="color:#a0aec0;font-size:12px;margin:0 0 20px 0;">建議先匯出備份再繼續</p>
+            <div style="display:flex;gap:10px;">
+                <button onclick="closeModal('import-modal')" style="flex:1;padding:12px;background:#e2ddd5;color:#2d3748;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">取消</button>
+                <button id="import-confirm-btn" style="flex:1;padding:12px;background:#C53030;color:white;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">確認匯入</button>
+            </div>
         </div>
     </div>
 
@@ -413,7 +547,7 @@
             <h3>來源清單</h3>
             <div class="field-label">每行一個來源</div>
             <textarea id="cfg-srcs" style="height:160px;" placeholder="幽浮官網&#10;Aniplex&#10;噗浪&#10;社團&#10;代購"></textarea>
-            <button onclick="saveSrcs()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px;">儲存並關閉</button>
+            <button onclick="saveSrcs()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px; font-family:inherit; font-weight:bold;">儲存並關閉</button>
         </div>
     </div>
 
@@ -438,7 +572,7 @@
             try {
                 localStorage.setItem('merch_v28_db', JSON.stringify(db));
             } catch(e) {
-                showToast('⚠ 儲存失敗，請匯出備份');
+                showToast('儲存失敗，請匯出備份');
             }
         }
 
@@ -466,6 +600,12 @@
             render();
             applyCompactMode();
             updateDrawerInfo();
+            // 給抽屜 icon 加 onclick
+            var drawerIcon = document.querySelector('.drawer-header img');
+            if (drawerIcon) {
+                drawerIcon.style.cursor = 'pointer';
+                drawerIcon.onclick = function() { openProfile(); };
+            }
             setTimeout(function() {
                 var nav = document.querySelector('.tab-nav-wrapper');
                 var spacer = document.getElementById('nav-spacer');
@@ -487,8 +627,6 @@
             var rateHint = document.getElementById('drawer-rate-hint');
             if (rateHint) rateHint.textContent = '1 JPY = ' + cfg.rate + ' TWD';
         }
-
-        var justCollapsed = false;
 
         // ── 側邊抽屜 ──
         var drawerOpen = false;
@@ -629,6 +767,13 @@
 
         function jumpTab(t) {
             curTab = t;
+            // 切換 tab 時清除搜尋
+            if (searchOpen) {
+                searchOpen = false;
+                document.getElementById('search-container').classList.remove('open');
+                document.getElementById('search-input').value = '';
+                filterSearch('');
+            }
             document.getElementById('page-wrapper').style.transform = (t === 'active' ? 'translateX(0)' : 'translateX(-50%)');
             document.body.style.background = (t === 'active' ? 'var(--bg-active)' : 'var(--bg-archive)');
             var nav = document.querySelector('.tab-nav-wrapper');
@@ -675,8 +820,6 @@
                 sortByDate(unpinned);
             }
 
-            var actList = pinned.concat(unpinned);
-
             var arcMap = {};
             // 封存區依封存時間排序（最新封存在上）
             archived.sort(function(a, b) { return (b.doneAt || 0) - (a.doneAt || 0); });
@@ -696,14 +839,23 @@
 
                 // 個人區塊
                 if (it.me && it.me.length > 0) {
+                    var meTotal = 0;
                     detailH += '<div class="detail-section-title">個人</div>';
                     it.me.forEach(function(m) {
+                        meTotal += (m.p * m.q);
                         totalVal += (m.p * m.q);
                         var priceStr = it.cur === 'JPY'
                             ? 'NT ' + Math.round(m.p * m.q * cfg.rate).toLocaleString() + '<span class="detail-jpy">（JPY ' + (m.p * m.q).toLocaleString() + '）</span>'
                             : (m.p * m.q).toLocaleString();
                         detailH += '<div class="detail-row"><span>' + esc(m.n) + ' (x' + esc(String(m.q)) + ')</span><span class="detail-price">' + priceStr + '</span></div>';
                     });
+                    // 小計（超過一項才顯示）
+                    if (it.me.length > 1) {
+                        var meSubtotalStr = it.cur === 'JPY'
+                            ? '小計 NT ' + Math.round(meTotal * cfg.rate).toLocaleString() + '<span class="detail-jpy">（JPY ' + meTotal.toLocaleString() + '）</span>'
+                            : '小計 NT ' + meTotal.toLocaleString();
+                        detailH += '<div class="detail-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed var(--border-input);"><span style="color:var(--text-muted);font-size:12px;">' + meSubtotalStr + '</span></div>';
+                    }
                 }
 
                 // 代購區塊
@@ -788,6 +940,8 @@
                 else if (it.stat === '已到貨') ccBarClass += 'cc-bar-arrived';
                 else ccBarClass += 'cc-bar-pending';
 
+                var compactEditBtnHtml = '<div class="detail-action-row"><button class="detail-edit-btn" onclick="event.stopPropagation();openEdit(\'' + esc(it.id) + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button></div>';
+
                 var compactCard =
                     '<div class="cc-swipe-container" data-search="' + esc(searchText.join(' ')) + '">' +
                         '<div class="cc-swipe-area">' +
@@ -795,21 +949,19 @@
                                 '<button class="action-btn action-done" data-id="' + esc(it.id) + '" onclick="toggleDone(this.dataset.id)">' + (it.done ? '還原' : '封存') + '</button>' +
                                 '<button class="action-btn action-del" data-id="' + esc(it.id) + '" onclick="delItem(this.dataset.id)">刪除</button>' +
                             '</div>' +
-                            '<div class="card-compact" id="cc-card-' + esc(it.id) + '" ontouchstart="ccs(event)" ontouchmove="ccm(event,\'' + esc(it.id) + '\')" ontouchend="cce(event,\'' + esc(it.id) + '\')" style="' + (!hasDetail ? 'cursor:default;' : 'cursor:pointer;') + '">' +
+                            '<div class="card-compact" id="cc-card-' + esc(it.id) + '" ontouchstart="ccs(event)" ontouchmove="ccm(event,\'' + esc(it.id) + '\')" ontouchend="cce(event,\'' + esc(it.id) + '\')" style="cursor:pointer;">' +
                                 '<div class="' + ccBarClass + '"></div>' +
                                 '<div class="cc-body">' +
                                     '<div class="cc-name">' + esc(it.name) + '</div>' +
                                     '<div class="cc-sub">' + esc(it.src) + (compactDate ? '<span class="cc-sep">|</span>' + compactDate : '') + '</div>' +
                                 '</div>' +
                                 '<span class="cc-price">' + compactPrice + '</span>' +
-                                '<div class="cc-btns">' +
-                                    (hasDetail ? '<button class="cc-btn" id="cc-arrow-' + esc(it.id) + '" onclick="event.stopPropagation();toggleCompactBox(\'' + esc(it.id) + '\')">∨</button>' : '<div class="cc-placeholder"></div>') +
-                                    '<button class="cc-btn" onclick="event.stopPropagation();openEdit(\'' + esc(it.id) + '\')">✎</button>' +
-                                '</div>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
-                    (hasDetail ? '<div class="detail-compact" id="cc-box-' + esc(it.id) + '"><div class="detail-inner">' + detailH + '</div></div>' : '');
+                    '<div class="detail-compact' + (!hasDetail ? ' no-content' : '') + '" id="cc-box-' + esc(it.id) + '"><div class="detail-inner">' + detailH + compactEditBtnHtml + '</div></div>';
+
+                var editBtnHtml = '<div class="detail-action-row"><button class="detail-edit-btn" onclick="event.stopPropagation();openEdit(\'' + esc(it.id) + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button></div>';
 
                 return '<div class="swipe-container' + (it.pin ? ' pinned-container' : '') + '" data-search="' + esc(searchText.join(' ')) + '">' +
                     '<div class="swipe-area">' +
@@ -817,7 +969,7 @@
                             '<button class="action-btn action-done" data-id="' + esc(it.id) + '" onclick="toggleDone(this.dataset.id)">' + (it.done ? '還原' : '封存') + '</button>' +
                             '<button class="action-btn action-del" data-id="' + esc(it.id) + '" onclick="delItem(this.dataset.id)">刪除</button>' +
                         '</div>' +
-                        '<div class="card' + (it.pin ? ' pinned' : '') + '" id="card-' + esc(it.id) + '" ontouchstart="cs(event)" ontouchmove="cm(event,\'' + esc(it.id) + '\')" ontouchend="ce(event,\'' + esc(it.id) + '\')" style="' + (hasDetail ? 'cursor:pointer;' : '') + '">' +
+                        '<div class="card' + (it.pin ? ' pinned' : '') + '" id="card-' + esc(it.id) + '" ontouchstart="cs(event)" ontouchmove="cm(event,\'' + esc(it.id) + '\')" ontouchend="ce(event,\'' + esc(it.id) + '\')" style="cursor:pointer;">' +
                             statHtml +
                             '<div class="img-box" data-link="' + esc(it.link) + '" onclick="event.stopPropagation();if(this.dataset.link) window.open(this.dataset.link)">' +
                                 (it.img ? '<img src="' + esc(it.img) + '" alt="">' : esc(it.src)) +
@@ -827,14 +979,9 @@
                                 '<div class="date-text">' + esc(dateStr) + '</div>' +
                                 '<div class="price-text">' + priceH + '</div>' +
                             '</div>' +
-                            '<div class="ctrl-group">' +
-                                (it.pin ? '<span class="pin-icon btn-icon" style="cursor:default;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v3.76z"/></svg></span>' : '') +
-                                (hasDetail ? '<button class="btn-icon btn-toggle" data-id="' + esc(it.id) + '" onclick="event.stopPropagation();toggleBox(this.dataset.id)">∨</button>' : '') +
-                                '<button class="btn-icon" data-id="' + esc(it.id) + '" onclick="event.stopPropagation();openEdit(this.dataset.id)">✎</button>' +
-                            '</div>' +
                         '</div>' +
                     '</div>' +
-                    (hasDetail ? '<div id="box-' + esc(it.id) + '" class="detail-box"><div class="detail-inner">' + detailH + '</div></div>' : '') +
+                    '<div id="box-' + esc(it.id) + '" class="detail-box' + (!hasDetail ? ' no-content' : '') + '"><div class="detail-inner">' + detailH + editBtnHtml + '</div></div>' +
                     '<div class="no-detail-gap"></div>' +
                 '</div>' +
                 compactCard;
@@ -849,19 +996,19 @@
             }
             actH += unpinned.map(buildCard).join('');
             document.getElementById('list-active').innerHTML = actH ||
-                '<div class="empty-state"><span class="empty-icon">📦</span>無進行中項目<br><span class="empty-hint">點右下角 + 新增第一筆</span></div>';
+                '<div class="empty-state"><span class="empty-icon"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#c8bfb4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>無進行中項目<br><span class="empty-hint">點右下角 + 新增第一筆</span></div>';
 
             // 封存區年份分組
             var arcYears = Object.keys(arcMap).sort(function(a, b) {
                 var na = Number(a), nb = Number(b);
                 if (isNaN(na)) return 1;
                 if (isNaN(nb)) return -1;
-                return na - nb; // 舊年在上
+                return nb - na; // 新年在上
             });
             var latestYear = arcYears[0] || '';
             if (arcYears.length === 0) {
                 document.getElementById('list-archive').innerHTML =
-                    '<div class="empty-state"><span class="empty-icon">🗂️</span>無封存項目</div>';
+                    '<div class="empty-state"><span class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c8bfb4" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18l-1.5 11a2 2 0 0 1-2 1.8H6.5a2 2 0 0 1-2-1.8L3 7z"/><path d="M3 7l1.5-3h15L21 7"/><path d="M9 11h6"/></svg></span>無封存項目</div>';
             } else {
                 var arcH = '';
                 arcYears.forEach(function(yr) {
@@ -888,7 +1035,10 @@
                         arcH += '<div id="' + restId + '" style="display:none;margin-top:0;">' + rest.map(buildCard).join('') + '</div>';
                         arcH += '<div id="' + moreBtnId + '" style="text-align:center;margin:4px 0;">' +
                             '<button onclick="showAllYear(\'' + yr + '\')" ' +
-                            'style="background:#1e2530;color:#8eb3cf;border:1px solid #333;padding:8px 20px;border-radius:8px;font-size:13px;">顯示全部（' + items.length + ' 筆）</button>' +
+                            'style="background:#EAF0F8;color:#2C5282;border:1px solid #c8d8ec;padding:8px 20px;border-radius:8px;font-size:13px;font-family:inherit;font-weight:bold;transition:transform 0.1s ease,opacity 0.1s ease;" ' +
+                            'onpointerdown="this.style.transform=\'scale(0.94)\';this.style.opacity=\'0.8\'" ' +
+                            'onpointerup="this.style.transform=\'\';this.style.opacity=\'\'" ' +
+                            'onpointerleave="this.style.transform=\'\';this.style.opacity=\'\'">顯示全部（' + items.length + ' 筆）</button>' +
                         '</div>';
                     }
                     arcH += '</div></div>';
@@ -943,15 +1093,11 @@
             } else if (cScrolled || dy > 10) {
                 // 垂直滑動，不做任何事
             } else {
-                var target = e.target.closest('.btn-icon');
-                if (target) return;
-
                 if (c.dataset.slid === '1') {
                     c.style.transform = 'translateX(0px)';
                     c.dataset.slid = '0';
                 } else {
-                    var hasDetail = document.getElementById('box-' + id) !== null;
-                    if (hasDetail) toggleBox(id);
+                    toggleBox(id);
                 }
             }
             e.stopPropagation();
@@ -992,8 +1138,6 @@
             } else if (ccScrolled || dy > 10) {
                 // 垂直滑動
             } else {
-                var target = e.target.closest('.cc-btn');
-                if (target) return;
                 if (c.dataset.slid === '1') {
                     c.style.transform = 'translateX(0px)';
                     c.dataset.slid = '0';
@@ -1008,24 +1152,40 @@
             var b = document.getElementById('box-' + id);
             if (!b) return;
             var isOpen = b.classList.contains('open');
-            b.classList.toggle('open', !isOpen);
-            var btn = document.querySelector('.btn-toggle[data-id="' + id + '"]');
-            if (btn) btn.classList.toggle('open', !isOpen);
+            b.classList.toggle('open');
+            // 展開時移除 swipe-area 下方圓角，收起時還原
+            var area = document.getElementById('card-' + id);
+            if (area) {
+                var swipeArea = area.closest('.swipe-area');
+                if (swipeArea) swipeArea.classList.toggle('expanded', !isOpen);
+            }
         }
 
         function toggleYear(yr) {
             var body = document.getElementById('yr-body-' + yr);
             var arrow = document.getElementById('yr-arrow-' + yr);
             var isOpen = body.classList.contains('open');
-            body.classList.toggle('open', !isOpen);
-            if (arrow) arrow.classList.toggle('open', !isOpen);
             if (isOpen) {
-                // 折疊時重置顯示全部按鈕
+                // 先強制收起所有已展開的 detail-box/compact，清掉殘留高度
+                body.querySelectorAll('.detail-box.open, .detail-compact.open').forEach(function(b) {
+                    b.classList.remove('open');
+                });
+                body.querySelectorAll('.btn-toggle.open, .cc-btn.open').forEach(function(b) {
+                    b.classList.remove('open');
+                });
+                // 重置顯示全部按鈕
                 var rest = document.getElementById('yr-rest-' + yr);
                 var more = document.getElementById('yr-more-' + yr);
                 if (rest) rest.style.display = 'none';
                 if (more) more.style.display = 'block';
+                // 稍微等 detail 收完再折疊 year-body
+                setTimeout(function() {
+                    body.classList.remove('open');
+                }, 30);
+            } else {
+                body.classList.add('open');
             }
+            if (arrow) arrow.classList.toggle('open', !isOpen);
         }
 
         function addRow(tid, v) {
@@ -1079,7 +1239,7 @@
         function openEdit(id) {
             editId = id;
             var it = (id === null)
-                ? {name: '', src: '', stat: '未發貨', yy: '', mm: '', dd: '', img: '', link: '', cur: 'TWD', me: [], dai: [], note: ''}
+                ? {name: '', src: '', stat: '待出貨', yy: '', mm: '', dd: '', img: '', link: '', cur: 'TWD', me: [], dai: [], note: ''}
                 : db.find(function(x) { return x.id === id; });
             if (!it) return;
 
@@ -1180,7 +1340,7 @@
             updateDrawerInfo();
             closeModal('edit-modal');
             // 2. 儲存後 Toast 提示
-            showToast(isNew ? '✓ 已新增「' + data.name + '」' : '✓ 已儲存');
+            showToast(isNew ? '已新增「' + data.name + '」' : '已儲存');
         }
 
         function setSort(s) {
@@ -1191,20 +1351,8 @@
             closeDrawer();
         }
 
-        function updateBackupHint() {
-            var hint = document.getElementById('last-backup-hint');
-            if (!hint) return;
-            var t = localStorage.getItem('merch_last_backup');
-            if (!t) { hint.textContent = '尚未備份過'; hint.style.color = '#a06060'; return; }
-            var days = Math.floor((Date.now() - Number(t)) / 86400000);
-            if (days === 0) { hint.textContent = '今天已備份 ✓'; hint.style.color = '#5a9a6a'; }
-            else if (days <= 7) { hint.textContent = days + ' 天前備份'; hint.style.color = '#888'; }
-            else { hint.textContent = days + ' 天未備份，建議匯出'; hint.style.color = '#a06060'; }
-        }
-
         function openConfig() {
             document.getElementById('cfg-rate').value = cfg.rate;
-            updateBackupHint();
             openModal('cfg-modal');
         }
 
@@ -1214,7 +1362,7 @@
             render();
             updateDrawerInfo();
             closeModal('cfg-modal');
-            showToast('✓ 匯率已儲存');
+            showToast('匯率已儲存');
         }
 
         function openSrcs() {
@@ -1233,7 +1381,7 @@
             localStorage.setItem('merch_v28_cfg', JSON.stringify(cfg));
             render();
             closeModal('srcs-modal');
-            showToast('✓ 來源清單已儲存');
+            showToast('來源清單已儲存');
         }
 
         // 抽屜動作
@@ -1258,16 +1406,16 @@
                 if (it.done) {
                     it.doneAt = Date.now();
                     save(); render();
-                    showToastUndo('📦 已封存「' + it.name + '」', function() {
+                    showToastUndo('已封存「' + it.name + '」', function() {
                         it.done = false;
                         delete it.doneAt;
                         save(); render();
-                        showToast('↩ 已回復封存');
+                        showToast('已回復封存');
                     });
                 } else {
                     delete it.doneAt;
                     save(); render();
-                    showToast('↩ 已還原「' + it.name + '」');
+                    showToast('已還原「' + it.name + '」');
                 }
             }
         }
@@ -1297,7 +1445,7 @@
                 setTimeout(function() {
                     db = db.filter(function(x) { return x.id !== pendingDelId; });
                     save(); render();
-                    showToast('🗑 已刪除「' + name + '」');
+                    showToast('已刪除「' + name + '」');
                 }, 200);
             };
             openModal('del-modal');
@@ -1348,10 +1496,14 @@
         function toggleCompactBox(id) {
             var box = document.getElementById('cc-box-' + id);
             if (!box) return;
-            var arrow = document.getElementById('cc-arrow-' + id);
             var isOpen = box.classList.contains('open');
-            box.classList.toggle('open', !isOpen);
-            if (arrow) arrow.classList.toggle('open', !isOpen);
+            box.classList.toggle('open');
+            // 展開時移除 cc-swipe-area 下方圓角，收起時還原
+            var card = document.getElementById('cc-card-' + id);
+            if (card) {
+                var swipeArea = card.closest('.cc-swipe-area');
+                if (swipeArea) swipeArea.classList.toggle('expanded', !isOpen);
+            }
         }
         function toggleSearch() {
             searchOpen = !searchOpen;
@@ -1396,8 +1548,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             localStorage.setItem('merch_last_backup', Date.now());
-            showToast('✓ 備份檔案已下載');
-            updateBackupHint();
+            showToast('備份檔案已下載');
         }
 
         function importData() {
@@ -1411,12 +1562,18 @@
                 reader.onload = function(ev) {
                     try {
                         var parsed = JSON.parse(ev.target.result);
-                        parsed.forEach(function(it) {
-                            if (!it.id) it.id = String(Date.now() + Math.random());
-                        });
-                        db = parsed;
-                        save(); render();
-                        showToast('✓ 匯入成功，共 ' + db.length + ' 筆');
+                        if (!Array.isArray(parsed)) throw new Error('not array');
+                        // 先確認，再執行覆蓋
+                        document.getElementById('import-confirm-btn').onclick = function() {
+                            parsed.forEach(function(it) {
+                                if (!it.id) it.id = String(Date.now() + Math.random());
+                            });
+                            db = parsed;
+                            save(); render(); updateDrawerInfo();
+                            closeModal('import-modal');
+                            showToast('匯入成功，共 ' + db.length + ' 筆');
+                        };
+                        openModal('import-modal');
                     } catch(e) {
                         alert('格式錯誤，請確認備份檔案是否完整！');
                     }
@@ -1443,6 +1600,22 @@
         // Service Worker 註冊
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js');
+        }
+
+        function openProfile() {
+            closeDrawer();
+            setTimeout(function() {
+                // 把抽屜裡的 icon 複製到彈窗
+                var src = document.querySelector('.drawer-header img');
+                var wrap = document.getElementById('profile-icon-wrap');
+                if (src && wrap && !wrap.querySelector('img')) {
+                    var img = document.createElement('img');
+                    img.src = src.src;
+                    img.style.cssText = 'width:72px;height:72px;border-radius:50%;border:3px solid var(--border-strong);';
+                    wrap.appendChild(img);
+                }
+                openModal('profile-modal');
+            }, 320);
         }
     </script>
 </div>
