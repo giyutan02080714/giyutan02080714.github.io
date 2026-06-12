@@ -87,9 +87,6 @@
         .tab { background: transparent; color: var(--text-muted); border: none; padding: 0 10px; height: 100%; font-weight: bold; font-size: 14px; font-family: inherit; position: relative; transition: color 0.2s; cursor: pointer; white-space: nowrap; display: flex; align-items: center; }
         .tab.active { color: var(--text-bright); }
         #tab-indicator { position: absolute; bottom: 0; height: 2px; background: var(--main-blue); border-radius: 2px; transition: left 0.25s ease-out, width 0.25s ease-out; }
-        .seg-ctrl { display: flex; background: var(--border-soft); border-radius: var(--radius-sm); padding: 3px; gap: 2px; margin: 0 6px; flex-shrink: 0; align-self: center; border: 1px solid var(--border-strong); }
-        .seg-btn { background: transparent; border: none; color: var(--text-muted); padding: 4px 9px; border-radius: 6px; font-size: 12px; font-weight: bold; font-family: inherit; cursor: pointer; transition: all 0.18s; white-space: nowrap; }
-        .seg-btn.active { background: var(--seg-active-bg); color: var(--seg-active-color); }
         .search-icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; flex-shrink: 0; align-self: center; }
 
         /* 搜尋欄 */
@@ -127,7 +124,8 @@
         .card-wrap { margin-bottom: 0; }
         .swipe-container { position: relative; margin-bottom: 0; }
         .swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--border-soft); width: 100%; }
-        .swipe-container.pinned-container > .swipe-area { border-left: 3px solid var(--main-blue); }
+        .swipe-container.pinned-container > .swipe-area { }
+        .swipe-container.pinned-container > .detail-box { }
         .swipe-btns { position: absolute; right: 0; top: 0; bottom: 0; width: 160px; display: flex; z-index: 1; }
         .action-btn { width: 80px !important; min-width: 80px !important; max-width: 80px !important; flex: 0 0 80px !important; border: none; color: white; font-weight: bold; font-size: 14px; font-family: inherit; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
         .action-done { background: var(--action-archive); }
@@ -135,23 +133,20 @@
         .no-detail-gap { margin-bottom: 4px; }
         /* 展開明細區 */
         .detail-box { background: #EDE7DC; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.35s ease-out; margin-bottom: 4px; }
-        .detail-box.open { max-height: 800px; }
+        .detail-box.open { max-height: 2000px; }
         .detail-inner { padding: 15px; border-top: 1px solid var(--border-strong); transform: translateY(-8px); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease; }
         .detail-box.open .detail-inner { transform: translateY(0); opacity: 1; }
         /* 展開時 swipe-area 下方圓角移除，避免缺角 */
         .swipe-area.expanded { border-radius: var(--radius-card) var(--radius-card) 0 0; }
-        .cc-swipe-area.expanded { border-radius: var(--radius-card) var(--radius-card) 0 0; }
 
         /* 封存展開區用更深背景 */
         #list-archive .detail-box { background: #DDD6C8; }
-        #list-archive .detail-compact { background: #DDD6C8; }
 
         /* 按鈕動畫 — 輕微按壓回饋 */
         .btn-icon:active { transform: scale(0.88); }
         .btn-icon.open:active { transform: rotate(180deg) scale(0.88); }
         .action-btn { transition: filter 0.1s ease; }
         .action-btn:active { filter: brightness(0.88); }
-        .seg-btn:active { transform: scale(0.92); }
         .search-icon-btn:active { transform: scale(0.88); }
         .hamburger-btn:active { transform: scale(0.88); }
         .add-link:active { opacity: 0.7; transform: scale(0.95); }
@@ -160,7 +155,6 @@
         .sort-opt { transition: all 0.15s; }
         .sort-opt:active { transform: scale(0.97); }
         .year-header:active { background: var(--border-strong); transform: scale(0.99); }
-        .cc-btn:active { transform: scale(0.85) !important; }
 
         /* 彈窗內所有按鈕（關閉/儲存/取消/確認刪除等）*/
         .modal button {
@@ -172,11 +166,10 @@
         }
 
         /* ── 防止長按選字 ── */
-        .card, .card-compact,
-        .swipe-container, .cc-swipe-container,
-        .info, .cc-body, .title, .cc-name, .cc-sub, .cc-price,
-        .price-text, .date-text, .src-text, .stat-tag, .img-box,
-        .year-header, .detail-inner, .detail-box, .detail-compact {
+        .card,
+        .swipe-container,
+        .info, .title, .price-text, .date-text, .src-text, .stat-tag, .img-box,
+        .year-header, .detail-inner, .detail-box {
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
@@ -208,30 +201,47 @@
         .detail-action-row { display: flex; justify-content: flex-end; padding: 8px 0 2px; }
         .detail-edit-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 1px solid var(--border-input); border-radius: 6px; background: #fff; color: var(--text-muted); font-size: 12px; font-family: inherit; cursor: pointer; transition: opacity 0.1s ease, transform 0.1s ease; }
         .detail-edit-btn:active { opacity: 0.75; transform: scale(0.92); }
-        /* 無明細時：展開區只有按鈕，不顯示上方分隔線 */
-        .detail-box.no-content .detail-inner,
-        .detail-compact.no-content .detail-inner { border-top: none; padding-top: 6px; }
-        .detail-box.no-content .detail-action-row,
-        .detail-compact.no-content .detail-action-row { border-top: none; padding-top: 0; margin-top: 0; }
+        /* 無明細時：展開區不顯示上方分隔線 */
+        .detail-box.no-content .detail-inner { border-top: none; padding-top: 6px; }
+        .detail-box.no-content .detail-action-row { border-top: none; padding-top: 0; margin-top: 0; }
 
         /* 明細展開區 */
-        .detail-section-title { font-size: 11px; font-weight: bold; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin: 8px 0 5px; }
-        .detail-section-title.dai-title { color: var(--main-blue); margin-top: 12px; opacity: 0.8; }
+        .detail-section-title { font-size: 11px; font-weight: bold; color: var(--main-blue); letter-spacing: 0.08em; text-transform: uppercase; margin: 8px 0 5px; display: flex; align-items: center; gap: 8px; }
+        .detail-section-title.dai-title { color: var(--accent-green); margin-top: 12px; }
+        .subtotal-badge-me { display: inline-block; background: rgba(44,82,130,0.10); color: var(--main-blue); font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+        .subtotal-badge-dai { display: inline-block; background: rgba(39,103,73,0.12); color: var(--accent-green); font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
         .detail-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-bright); padding: 3px 0; }
-        .detail-price { color: var(--text-muted); }
+        .detail-price { color: var(--text-muted); text-align: right; }
         .detail-jpy { font-size: 11px; color: var(--text-muted); margin-left: 4px; }
-        .dai-person-block { border-left: 2px solid var(--main-blue); padding-left: 10px; margin-bottom: 8px; opacity: 0.85; }
-        .dai-person-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-        .dai-person-name { font-size: 12px; color: var(--main-blue); font-weight: bold; }
+        .dai-person-block { border-left: 2px solid var(--accent-green); padding-left: 10px; margin-bottom: 8px; opacity: 0.85; }
+        .dai-person-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .dai-person-name { font-size: 12px; color: var(--accent-green); font-weight: bold; }
         .dai-subtotal { font-size: 11px; color: var(--text-muted); }
         .dai-item-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-bright); padding: 2px 0 2px 4px; }
         .dai-item-price { color: var(--text-muted); }
         .dai-item-jpy { font-size: 10px; color: var(--text-muted); margin-left: 3px; }
         .note-area { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-input); font-size: 13px; color: var(--text-muted); }
 
-        /* 彈窗動畫 */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0); display: none; z-index: 2000; overflow-y: auto; transition: background 0.25s ease; align-items: flex-start; }
+        /* 費用概覽彈窗 */
+        .cost-row { display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--border-mid); }
+        .cost-row:last-of-type { border-bottom:none; }
+        .cost-row-month { font-size:14px; font-weight:bold; color:var(--text-bright); }
+        .cost-row-month.current { color:var(--main-blue); }
+        .cost-row-amt { font-size:15px; font-weight:bold; color:var(--price-green); }
+        .cost-show-more { width:100%; margin-top:10px; padding:7px; background:var(--seg-active-bg); color:var(--main-blue); border:none; border-radius:var(--radius-sm); font-size:12px; font-weight:bold; font-family:inherit; cursor:pointer; transition:opacity 0.1s; }
+        .cost-show-more:active { opacity:0.7; }
+        /* 來源清單膠囊式 */
+        .src-tag-wrap { display:flex; flex-wrap:wrap; gap:8px; padding:12px; background:#fff; border:1px solid var(--border-input); border-radius:var(--radius-sm); min-height:52px; margin-bottom:10px; }
+        .src-tag-item { display:inline-flex; align-items:center; gap:5px; background:var(--seg-active-bg); color:var(--main-blue); border:1px solid #C8D8EC; font-size:13px; font-weight:bold; padding:5px 10px; border-radius:20px; }
+        .src-tag-del { background:none; border:none; color:var(--main-blue); opacity:0.5; font-size:15px; cursor:pointer; padding:0; line-height:1; }
+        .src-tag-del:active { opacity:1; }
+        .src-tag-add-row { display:flex; gap:8px; }
+        .src-tag-add-btn { padding:10px 16px; background:var(--seg-active-bg); color:var(--main-blue); border:1px solid #C8D8EC; border-radius:var(--radius-sm); font-family:inherit; font-weight:bold; font-size:13px; cursor:pointer; white-space:nowrap; flex-shrink:0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0); display: none; z-index: 2000; overflow-y: hidden; transition: background 0.25s ease; align-items: flex-start; touch-action: none; }
         .overlay.show { background: rgba(80,60,40,0.45); }
+        #export-modal { align-items: center; justify-content: center; }
+        #export-modal .modal { transform: scale(0.92); opacity: 0; transition: transform 0.22s ease-out, opacity 0.2s ease; margin: 0; border-radius: var(--radius-card); }
+        #export-modal.show .modal { transform: scale(1); opacity: 1; }
         #del-modal { align-items: center; justify-content: center; }
         #del-modal .modal { transform: scale(0.92); opacity: 0; transition: transform 0.22s ease-out, opacity 0.2s ease; margin: 0; border-radius: var(--radius-card); }
         #del-modal.show .modal { transform: scale(1); opacity: 1; }
@@ -241,6 +251,9 @@
         #edit-modal { align-items: flex-end; justify-content: center; }
         #edit-modal .modal { width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0; transform: translateY(100%); opacity: 1; transition: transform 0.3s ease-out; max-height: 92vh; overflow-y: auto; margin: 0; }
         #edit-modal.show .modal { transform: translateY(0); }
+        #cost-modal { align-items: flex-end; justify-content: center; }
+        #cost-modal .modal { width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0; transform: translateY(100%); opacity: 1; transition: transform 0.3s ease-out; max-height: 92vh; overflow-y: auto; margin: 0; }
+        #cost-modal.show .modal { transform: translateY(0); }
         #cfg-modal { align-items: flex-end; justify-content: center; }
         #cfg-modal .modal { width: 100%; border-radius: var(--radius-card) var(--radius-card) 0 0; transform: translateY(100%); opacity: 1; transition: transform 0.3s ease-out; max-height: 92vh; overflow-y: auto; margin: 0; }
         #cfg-modal.show .modal { transform: translateY(0); }
@@ -292,36 +305,6 @@
         /* 置頂分隔線 */
         .pin-divider { height: 1px; background: var(--border-strong); margin: 8px 0; }
 
-        /* 緊湊模式卡片 */
-        .card-compact { background: var(--card-bg); border-radius: 0; display: flex; align-items: center; padding: 8px 4px 8px 10px; position: relative; z-index: 2; transition: transform 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .cc-bar { width: 4px; height: 36px; border-radius: 4px; flex-shrink: 0; margin-right: 10px; }
-        .cc-bar-pending  { background: #a0aec0; }
-        .cc-bar-shipping { background: var(--main-blue); }
-        .cc-bar-arrived  { background: var(--accent-green); }
-        .cc-body { flex: 1; min-width: 0; margin-right: 8px; }
-        .cc-name { font-size: 15px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bright); }
-        .cc-sub  { font-size: 11px; color: var(--text-muted); margin-top: 3px; white-space: nowrap; }
-        .cc-sep  { color: var(--border-input); margin: 0 5px; }
-        .cc-price { width: 80px; text-align: right; font-size: 14px; font-weight: bold; color: var(--price-green); white-space: nowrap; flex-shrink: 0; }
-        .cc-btns { width: 56px; display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; }
-        .cc-btn  { background: none; border: none; color: var(--text-muted); font-size: 16px; padding: 4px 5px; cursor: pointer; transition: transform 0.2s; }
-        .cc-btn.open { transform: rotate(180deg); }
-        .cc-placeholder { width: 26px; flex-shrink: 0; }
-
-        /* 列表細項展開 */
-        .detail-compact { background: #EDE7DC; border-radius: 0 0 var(--radius-card) var(--radius-card); max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 5px; }
-        .detail-compact.open { max-height: 500px; }
-        .detail-compact .detail-inner { padding: 12px; border-top: 1px solid var(--border-strong); opacity: 1; transform: none; }
-
-        /* 列表模式側滑結構 */
-        .cc-swipe-container { position: relative; margin-bottom: 0; }
-        .cc-swipe-area { position: relative; border-radius: var(--radius-card); overflow: hidden; background: var(--border-soft); width: 100%; margin-bottom: 4px; }
-
-        /* 模式顯示控制 */
-        .mode-compact .swipe-container { display: none; }
-        .mode-compact .detail-box { display: none; }
-        .mode-normal .card-compact { display: none; }
-        .mode-normal .detail-compact { display: none; }
     </style>
 </head>
 <body onload="init()">
@@ -338,10 +321,6 @@
                 <button id="t-arc" class="tab" onclick="jumpTab('archive')">已封存</button>
                 <div id="tab-indicator"></div>
             </div>
-            <div class="seg-ctrl">
-                <button class="seg-btn active" id="seg-card" onclick="setMode('card')">卡片</button>
-                <button class="seg-btn" id="seg-list" onclick="setMode('list')">列表</button>
-            </div>
             <button class="search-icon-btn" onclick="toggleSearch()">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
             </button>
@@ -352,7 +331,7 @@
     </div>
     <div id="nav-spacer" style="height:0px;"></div>
 
-    <div id="page-wrapper" class="mode-normal">
+    <div id="page-wrapper">
         <div id="list-active" class="page-content"></div>
         <div id="list-archive" class="page-content"></div>
     </div>
@@ -376,10 +355,15 @@
         <div class="drawer-section">
             <div class="drawer-section-label">排序</div>
             <div class="drawer-sort-group">
-                <div class="sort-opt" id="sort-opt-new" onclick="setSort('new')">建立日期（新→舊）</div>
-                <div class="sort-opt" id="sort-opt-old" onclick="setSort('old')">建立日期（舊→新）</div>
                 <div class="sort-opt" id="sort-opt-pre-new" onclick="setSort('pre-new')">預購日期（新→舊）</div>
                 <div class="sort-opt" id="sort-opt-pre-old" onclick="setSort('pre-old')">預購日期（舊→新）</div>
+            </div>
+        </div>
+        <div class="drawer-section">
+            <div class="drawer-section-label">費用</div>
+            <div class="drawer-item" onclick="drawerAction('cost')">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#99a" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span class="drawer-item-label">未付款金額</span>
             </div>
         </div>
         <div class="drawer-section">
@@ -468,10 +452,19 @@
             <!-- 分隔線 -->
             <div style="border-top:1px solid #333; margin:4px 0 10px 0;"></div>
 
-            <!-- 幣別 -->
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-                <div class="field-label" style="margin:0; white-space:nowrap;">幣別</div>
-                <select id="in-cur" style="width:110px; margin:0;"><option value="TWD">TWD</option><option value="JPY">JPY</option></select>
+            <!-- 幣別 + 付款時機 -->
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="field-label" style="margin:0; white-space:nowrap;">幣別</div>
+                    <select id="in-cur" style="width:100px; margin:0;"><option value="TWD">TWD</option><option value="JPY">JPY</option></select>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="field-label" style="margin:0; white-space:nowrap;">付款時機</div>
+                    <select id="in-payment" style="width:110px; margin:0;">
+                        <option value="pending">待扣款</option>
+                        <option value="paid">已付款</option>
+                    </select>
+                </div>
             </div>
             <textarea id="in-note" placeholder="備註..." style="height:60px; margin:0 0 14px 0;"></textarea>
 
@@ -510,6 +503,15 @@
         </div>
     </div>
 
+    <!-- 未付款金額彈窗 -->
+    <div id="cost-modal" class="overlay" onclick="overlayClick(event,'cost-modal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>未付款金額</h3>
+            <div id="cost-modal-body" style="min-height:60px;"></div>
+            <button onclick="closeModal('cost-modal')" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px; font-family:inherit; font-weight:bold;">關閉</button>
+        </div>
+    </div>
+
     <!-- 匯率設定彈窗 -->
     <div id="cfg-modal" class="overlay" onclick="overlayClick(event,'cfg-modal')">
         <div class="modal" onclick="event.stopPropagation()">
@@ -520,6 +522,24 @@
                 <span style="color:#888; white-space:nowrap; font-size:14px;">TWD</span>
             </div>
             <button onclick="saveConfig()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px; font-family:inherit; font-weight:bold;">儲存並關閉</button>
+        </div>
+    </div>
+
+    <!-- 匯出確認彈窗 -->
+    <div id="export-modal" class="overlay" onclick="overlayClick(event,'export-modal')">
+        <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+            <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#2C5282" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3 style="margin:0 0 8px 0;">匯出備份</h3>
+            <p style="color:#718096;font-size:14px;margin:0 0 6px 0;">將下載包含所有資料的 JSON 備份檔</p>
+            <p style="color:#a0aec0;font-size:12px;margin:0 0 20px 0;">共 <span id="export-count"></span> 筆資料</p>
+            <div style="display:flex;gap:10px;">
+                <button onclick="closeModal('export-modal')" style="flex:1;padding:12px;background:#e2ddd5;color:#2d3748;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">取消</button>
+                <button onclick="doExport()" style="flex:1;padding:12px;background:var(--main-blue);color:white;border:none;border-radius:8px;font-family:inherit;font-weight:bold;">確認匯出</button>
+            </div>
         </div>
     </div>
 
@@ -545,8 +565,11 @@
     <div id="srcs-modal" class="overlay" onclick="overlayClick(event,'srcs-modal')">
         <div class="modal" onclick="event.stopPropagation()">
             <h3>來源清單</h3>
-            <div class="field-label">每行一個來源</div>
-            <textarea id="cfg-srcs" style="height:160px;" placeholder="幽浮官網&#10;Aniplex&#10;噗浪&#10;社團&#10;代購"></textarea>
+            <div class="src-tag-wrap" id="src-tag-wrap"></div>
+            <div class="src-tag-add-row">
+                <input type="text" id="src-tag-input" placeholder="新增來源…" style="margin:0;" onkeydown="if(event.key==='Enter')addSrcTag()">
+                <button onclick="addSrcTag()" class="src-tag-add-btn">新增</button>
+            </div>
             <button onclick="saveSrcs()" style="width:100%; padding:15px; background:var(--main-blue); color:white; border:none; border-radius:8px; margin-top:14px; font-family:inherit; font-weight:bold;">儲存並關閉</button>
         </div>
     </div>
@@ -587,7 +610,7 @@
         }
 
         function updateSortUI() {
-            ['new','old','pre-new','pre-old'].forEach(function(k) {
+            ['pre-new','pre-old'].forEach(function(k) {
                 var el = document.getElementById('sort-opt-' + k);
                 if (el) el.classList.toggle('active', cfg.sort === k);
             });
@@ -598,7 +621,6 @@
             setupSwipe();
             setupDrawerSwipe();
             render();
-            applyCompactMode();
             updateDrawerInfo();
             // 給抽屜 icon 加 onclick
             var drawerIcon = document.querySelector('.drawer-header img');
@@ -619,6 +641,70 @@
             }, 50);
         }
 
+        function renderCostSummary() {
+            var now = new Date();
+            var curKey = now.getFullYear() * 100 + (now.getMonth() + 1);
+
+            var items = db.filter(function(it) {
+                if (it.done) return false;
+                if ((it.payment || 'pending') !== 'pending') return false;
+                var y = parseInt((it.yy || '').replace('年', ''));
+                var m = parseInt((it.mm || '').replace('月', ''));
+                return y && m && (y * 100 + m) >= curKey;
+            });
+
+            var groupMap = {};
+            items.forEach(function(it) {
+                var y = parseInt((it.yy || '').replace('年', ''));
+                var m = parseInt((it.mm || '').replace('月', ''));
+                var k = y * 100 + m;
+                if (!groupMap[k]) groupMap[k] = [];
+                groupMap[k].push(it);
+            });
+
+            var keys = Object.keys(groupMap).map(Number).sort(function(a, b) { return a - b; });
+
+            function calcTWD(it) {
+                var t = 0;
+                (it.me || []).forEach(function(m) { t += m.p * m.q; });
+                (it.dai || []).forEach(function(d) { (d.items || []).forEach(function(i) { t += i.p * i.q; }); });
+                return it.cur === 'JPY' ? Math.round(t * cfg.rate) : t;
+            }
+
+            // 產生彈窗內容
+            function buildModalHTML() {
+                if (keys.length === 0) {
+                    return '<div style="font-size:14px;color:var(--text-muted);padding:8px 0;">目前沒有待扣款項目</div>';
+                }
+                var inner = '';
+                keys.forEach(function(k) {
+                    var y = Math.floor(k / 100), m = k % 100;
+                    var isCurrent = k === curKey;
+                    var total = groupMap[k].reduce(function(s, it) { return s + calcTWD(it); }, 0);
+                    var monthLabel = y + '/' + m;
+                    var curBadge = isCurrent ? '&thinsp;<span style="display:inline-block;background:var(--main-blue);color:#fff;font-size:10px;font-weight:bold;padding:2px 7px;border-radius:20px;vertical-align:middle;position:relative;top:-1px;">本月</span>' : '';
+                    inner += '<div class="cost-row">';
+                    inner += '<div class="cost-row-month">' + monthLabel + curBadge + '</div>';
+                    inner += '<div class="cost-row-amt">NT&thinsp;' + total.toLocaleString() + '</div>';
+                    inner += '</div>';
+                });
+                return inner;
+            }
+
+            window._costModalHTML = buildModalHTML;
+
+            window.expandCostModal = function() {
+                var el = document.getElementById('cost-modal-body');
+                if (el) el.innerHTML = buildModalHTML();
+            };
+        }
+
+        function openCostModal() {
+            var el = document.getElementById('cost-modal-body');
+            if (el && window._costModalHTML) el.innerHTML = window._costModalHTML();
+            openModal('cost-modal');
+        }
+
         function updateDrawerInfo() {
             var active = db.filter(function(x) { return !x.done; }).length;
             var archived = db.filter(function(x) { return x.done; }).length;
@@ -626,6 +712,7 @@
             if (sub) sub.textContent = active + ' 件進行中・' + archived + ' 件已封存';
             var rateHint = document.getElementById('drawer-rate-hint');
             if (rateHint) rateHint.textContent = '1 JPY = ' + cfg.rate + ' TWD';
+            renderCostSummary();
         }
 
         // ── 側邊抽屜 ──
@@ -755,8 +842,8 @@
 
             // 點空白處收回所有側滑卡片
             document.addEventListener('click', function(e) {
-                if (!e.target.closest('.swipe-container') && !e.target.closest('.cc-swipe-container')) {
-                    document.querySelectorAll('.card, .card-compact').forEach(function(c) {
+                if (!e.target.closest('.swipe-container')) {
+                    document.querySelectorAll('.card').forEach(function(c) {
                         c.style.transition = 'transform 0.2s';
                         c.style.transform = 'translateX(0px)';
                         c.dataset.slid = '0';
@@ -796,29 +883,23 @@
             var unpinned = sorted.filter(function(x) { return !x.done && !x.pin; });
             var archived = sorted.filter(function(x) { return x.done; });
 
-            if (cfg.sort === 'new') {
-                unpinned.reverse();
-            } else if (cfg.sort === 'old') {
-                // 保持原始順序
-            } else if (cfg.sort === 'pre-new' || cfg.sort === 'pre-old') {
-                var sortByDate = function(arr) {
-                    arr.sort(function(a, b) {
-                        var da = parseInt(
-                            (a.yy || '0000').replace('年', '') +
-                            (a.mm || '00').replace('月', '').padStart(2, '0') +
-                            (a.dd || '00').replace('日', '').padStart(2, '0')
-                        );
-                        var dbv = parseInt(
-                            (b.yy || '0000').replace('年', '') +
-                            (b.mm || '00').replace('月', '').padStart(2, '0') +
-                            (b.dd || '00').replace('日', '').padStart(2, '0')
-                        );
-                        return cfg.sort === 'pre-new' ? dbv - da : da - dbv;
-                    });
-                };
-                sortByDate(pinned);
-                sortByDate(unpinned);
-            }
+            var sortByDate = function(arr) {
+                arr.sort(function(a, b) {
+                    var da = parseInt(
+                        (a.yy || '0000').replace('年', '') +
+                        (a.mm || '00').replace('月', '').padStart(2, '0') +
+                        (a.dd || '00').replace('日', '').padStart(2, '0')
+                    );
+                    var dbv = parseInt(
+                        (b.yy || '0000').replace('年', '') +
+                        (b.mm || '00').replace('月', '').padStart(2, '0') +
+                        (b.dd || '00').replace('日', '').padStart(2, '0')
+                    );
+                    return cfg.sort === 'pre-new' ? dbv - da : da - dbv;
+                });
+            };
+            sortByDate(pinned);
+            sortByDate(unpinned);
 
             var arcMap = {};
             // 封存區依封存時間排序（最新封存在上）
@@ -840,22 +921,17 @@
                 // 個人區塊
                 if (it.me && it.me.length > 0) {
                     var meTotal = 0;
-                    detailH += '<div class="detail-section-title">個人</div>';
+                    it.me.forEach(function(m) { meTotal += (m.p * m.q); totalVal += (m.p * m.q); });
+                    var meSubtotalTWD = it.cur === 'JPY' ? Math.round(meTotal * cfg.rate) : meTotal;
+                    var meSubtotalJPY = it.cur === 'JPY' ? '（JPY ' + meTotal.toLocaleString() + '）' : '';
+                    var meBadge = '<span class="subtotal-badge-me">小計 NT ' + meSubtotalTWD.toLocaleString() + meSubtotalJPY + '</span>';
+                    detailH += '<div class="detail-section-title">個人 ' + meBadge + '</div>';
                     it.me.forEach(function(m) {
-                        meTotal += (m.p * m.q);
-                        totalVal += (m.p * m.q);
                         var priceStr = it.cur === 'JPY'
                             ? 'NT ' + Math.round(m.p * m.q * cfg.rate).toLocaleString() + '<span class="detail-jpy">（JPY ' + (m.p * m.q).toLocaleString() + '）</span>'
-                            : (m.p * m.q).toLocaleString();
+                            : 'NT ' + (m.p * m.q).toLocaleString();
                         detailH += '<div class="detail-row"><span>' + esc(m.n) + ' (x' + esc(String(m.q)) + ')</span><span class="detail-price">' + priceStr + '</span></div>';
                     });
-                    // 小計（超過一項才顯示）
-                    if (it.me.length > 1) {
-                        var meSubtotalStr = it.cur === 'JPY'
-                            ? '小計 NT ' + Math.round(meTotal * cfg.rate).toLocaleString() + '<span class="detail-jpy">（JPY ' + meTotal.toLocaleString() + '）</span>'
-                            : '小計 NT ' + meTotal.toLocaleString();
-                        detailH += '<div class="detail-row" style="margin-top:4px;padding-top:4px;border-top:1px dashed var(--border-input);"><span style="color:var(--text-muted);font-size:12px;">' + meSubtotalStr + '</span></div>';
-                    }
                 }
 
                 // 代購區塊
@@ -868,17 +944,17 @@
                     daiData.forEach(function(d) {
                         var personTotal = 0;
                         (d.items || []).forEach(function(item) { personTotal += (item.p * item.q); totalVal += (item.p * item.q); });
-                        var subtotalStr = it.cur === 'JPY'
-                            ? '小計 NT ' + Math.round(personTotal * cfg.rate).toLocaleString() + '<span class="dai-item-jpy">（JPY ' + personTotal.toLocaleString() + '）</span>'
-                            : '小計 ' + personTotal.toLocaleString();
+                        var personTWD = it.cur === 'JPY' ? Math.round(personTotal * cfg.rate) : personTotal;
+                        var personJPY = it.cur === 'JPY' ? '（JPY ' + personTotal.toLocaleString() + '）' : '';
+                        var daiBadge = '<span class="subtotal-badge-dai">小計 NT ' + personTWD.toLocaleString() + personJPY + '</span>';
                         detailH += '<div class="dai-person-block">';
                         if (d.person) {
-                            detailH += '<div class="dai-person-row"><span class="dai-person-name">' + esc(d.person) + '</span><span class="dai-subtotal">' + subtotalStr + '</span></div>';
+                            detailH += '<div class="dai-person-row"><span class="dai-person-name">' + esc(d.person) + '</span>' + daiBadge + '</div>';
                         }
                         (d.items || []).forEach(function(item) {
                             var itemPriceStr = it.cur === 'JPY'
                                 ? 'NT ' + Math.round(item.p * item.q * cfg.rate).toLocaleString() + '<span class="dai-item-jpy">（JPY ' + (item.p * item.q).toLocaleString() + '）</span>'
-                                : (item.p * item.q).toLocaleString();
+                                : 'NT ' + (item.p * item.q).toLocaleString();
                             detailH += '<div class="dai-item-row"><span>' + esc(item.n) + ' (x' + esc(String(item.q)) + ')</span><span class="dai-item-price">' + itemPriceStr + '</span></div>';
                         });
                         detailH += '</div>';
@@ -887,13 +963,15 @@
 
                 if (it.note) detailH += '<div class="note-area">備註：' + esc(it.note) + '</div>';
 
-                // 4. 日幣顯示：NT xxx 元（JPY xxx）
+                // 4. 價格列：已付款顯示標記，JPY 小字統一不顯示
+                var isPaid = (it.payment === 'paid');
+                var paidTag = isPaid ? '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:4px;"><span style="width:16px;height:16px;border-radius:50%;background:var(--accent-green);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></span><span style="font-size:11px;color:var(--accent-green);font-weight:bold;">已付款</span></span>' : '';
                 var priceH;
                 if (it.cur === 'JPY') {
                     var twd = Math.round(totalVal * cfg.rate);
-                    priceH = 'NT ' + twd.toLocaleString() + ' 元<span class="jpy-tag">（JPY ' + totalVal.toLocaleString() + '）</span>';
+                    priceH = 'NT ' + twd.toLocaleString() + ' 元' + paidTag;
                 } else {
-                    priceH = 'NT ' + totalVal.toLocaleString() + ' 元';
+                    priceH = 'NT ' + totalVal.toLocaleString() + ' 元' + paidTag;
                 }
 
                 var dateStr = (it.yy || '') + (it.mm || '') + (it.dd || '');
@@ -924,43 +1002,6 @@
                 }
                 if (it.note) searchText.push(it.note);
 
-                // 緊湊版日期：只顯示月日
-                var mm = (it.mm || '').replace('月', '');
-                var dd = (it.dd || '').replace('日', '');
-                var compactDate = mm ? (mm + '月' + (dd ? dd + '日' : '')) : '';
-
-                // 緊湊版價格：不含「元」
-                var compactPrice = it.cur === 'JPY'
-                    ? 'NT ' + Math.round(totalVal * cfg.rate).toLocaleString()
-                    : 'NT ' + totalVal.toLocaleString();
-
-                // 緊湊版狀態色塊
-                var ccBarClass = 'cc-bar ';
-                if (it.stat === '運送中') ccBarClass += 'cc-bar-shipping';
-                else if (it.stat === '已到貨') ccBarClass += 'cc-bar-arrived';
-                else ccBarClass += 'cc-bar-pending';
-
-                var compactEditBtnHtml = '<div class="detail-action-row"><button class="detail-edit-btn" onclick="event.stopPropagation();openEdit(\'' + esc(it.id) + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button></div>';
-
-                var compactCard =
-                    '<div class="cc-swipe-container" data-search="' + esc(searchText.join(' ')) + '">' +
-                        '<div class="cc-swipe-area">' +
-                            '<div class="swipe-btns">' +
-                                '<button class="action-btn action-done" data-id="' + esc(it.id) + '" onclick="toggleDone(this.dataset.id)">' + (it.done ? '還原' : '封存') + '</button>' +
-                                '<button class="action-btn action-del" data-id="' + esc(it.id) + '" onclick="delItem(this.dataset.id)">刪除</button>' +
-                            '</div>' +
-                            '<div class="card-compact" id="cc-card-' + esc(it.id) + '" ontouchstart="ccs(event)" ontouchmove="ccm(event,\'' + esc(it.id) + '\')" ontouchend="cce(event,\'' + esc(it.id) + '\')" style="cursor:pointer;">' +
-                                '<div class="' + ccBarClass + '"></div>' +
-                                '<div class="cc-body">' +
-                                    '<div class="cc-name">' + esc(it.name) + '</div>' +
-                                    '<div class="cc-sub">' + esc(it.src) + (compactDate ? '<span class="cc-sep">|</span>' + compactDate : '') + '</div>' +
-                                '</div>' +
-                                '<span class="cc-price">' + compactPrice + '</span>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="detail-compact' + (!hasDetail ? ' no-content' : '') + '" id="cc-box-' + esc(it.id) + '"><div class="detail-inner">' + detailH + compactEditBtnHtml + '</div></div>';
-
                 var editBtnHtml = '<div class="detail-action-row"><button class="detail-edit-btn" onclick="event.stopPropagation();openEdit(\'' + esc(it.id) + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>編輯</button></div>';
 
                 return '<div class="swipe-container' + (it.pin ? ' pinned-container' : '') + '" data-search="' + esc(searchText.join(' ')) + '">' +
@@ -971,6 +1012,7 @@
                         '</div>' +
                         '<div class="card' + (it.pin ? ' pinned' : '') + '" id="card-' + esc(it.id) + '" ontouchstart="cs(event)" ontouchmove="cm(event,\'' + esc(it.id) + '\')" ontouchend="ce(event,\'' + esc(it.id) + '\')" style="cursor:pointer;">' +
                             statHtml +
+                            (it.pin ? '<div style="position:absolute;top:38px;right:12px;display:inline-block;background:#EDE0CC;color:#7A5C3A;border:1px solid #D4C4A8;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:0.3px;">置頂</div>' : '') +
                             '<div class="img-box" data-link="' + esc(it.link) + '" onclick="event.stopPropagation();if(this.dataset.link) window.open(this.dataset.link)">' +
                                 (it.img ? '<img src="' + esc(it.img) + '" alt="">' : esc(it.src)) +
                             '</div>' +
@@ -983,8 +1025,7 @@
                     '</div>' +
                     '<div id="box-' + esc(it.id) + '" class="detail-box' + (!hasDetail ? ' no-content' : '') + '"><div class="detail-inner">' + detailH + editBtnHtml + '</div></div>' +
                     '<div class="no-detail-gap"></div>' +
-                '</div>' +
-                compactCard;
+                '</div>';
             }
 
             // 進行中列表
@@ -1045,7 +1086,6 @@
                 });
                 document.getElementById('list-archive').innerHTML = arcH;
             }
-            applyCompactMode();
         }
 
         function showAllYear(yr) {
@@ -1103,51 +1143,6 @@
             e.stopPropagation();
         }
 
-        // 列表模式側滑 handlers
-        var ccX = 0, ccY = 0, ccMoved = false, ccScrolled = false;
-        function ccs(e) {
-            ccX = e.touches[0].clientX;
-            ccY = e.touches[0].clientY;
-            ccMoved = false;
-            ccScrolled = false;
-            e.stopPropagation();
-        }
-        function ccm(e, id) {
-            var m = e.touches[0].clientX - ccX;
-            var my = e.touches[0].clientY - ccY;
-            if (Math.abs(my) > Math.abs(m)) {
-                ccScrolled = true;
-            } else if (Math.abs(m) > 5) {
-                ccMoved = true;
-                if (m < 0 && m > -160) document.getElementById('cc-card-' + id).style.transform = 'translateX(' + m + 'px)';
-            }
-            e.stopPropagation();
-        }
-        function cce(e, id) {
-            var m = e.changedTouches[0].clientX - ccX;
-            var dy = Math.abs(e.changedTouches[0].clientY - ccY);
-            var c = document.getElementById('cc-card-' + id);
-            c.style.transition = 'transform 0.2s';
-
-            if (ccMoved && m < -60) {
-                c.style.transform = 'translateX(-160px)';
-                c.dataset.slid = '1';
-            } else if (ccMoved) {
-                c.style.transform = 'translateX(0px)';
-                c.dataset.slid = '0';
-            } else if (ccScrolled || dy > 10) {
-                // 垂直滑動
-            } else {
-                if (c.dataset.slid === '1') {
-                    c.style.transform = 'translateX(0px)';
-                    c.dataset.slid = '0';
-                } else {
-                    toggleCompactBox(id);
-                }
-            }
-            e.stopPropagation();
-        }
-
         function toggleBox(id) {
             var b = document.getElementById('box-' + id);
             if (!b) return;
@@ -1166,11 +1161,11 @@
             var arrow = document.getElementById('yr-arrow-' + yr);
             var isOpen = body.classList.contains('open');
             if (isOpen) {
-                // 先強制收起所有已展開的 detail-box/compact，清掉殘留高度
-                body.querySelectorAll('.detail-box.open, .detail-compact.open').forEach(function(b) {
+                // 先強制收起所有已展開的 detail-box，清掉殘留高度
+                body.querySelectorAll('.detail-box.open').forEach(function(b) {
                     b.classList.remove('open');
                 });
-                body.querySelectorAll('.btn-toggle.open, .cc-btn.open').forEach(function(b) {
+                body.querySelectorAll('.btn-toggle.open').forEach(function(b) {
                     b.classList.remove('open');
                 });
                 // 重置顯示全部按鈕
@@ -1258,6 +1253,7 @@
             var dd = (it.dd || '').replace('日','').padStart(2,'0');
             document.getElementById('in-date').value = (yy && mm) ? yy + '-' + (mm||'01') + '-' + (dd||'01') : (yy ? yy + '-01-01' : '');
             document.getElementById('in-cur').value = it.cur;
+            document.getElementById('in-payment').value = it.payment || 'pending';
             document.getElementById('in-pin').checked = it.pin || false;
 
             var srcsRaw = cfg.srcs || '';
@@ -1265,7 +1261,11 @@
                 ? srcsRaw.split('\n').map(function(x){ return x.trim(); }).filter(Boolean)
                 : srcsRaw.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
             var opt = '';
-            s.forEach(function(x) { opt += '<option>' + esc(x) + '</option>'; });
+            if (s.length === 0) {
+                opt = '<option value="">（請先在設定中新增來源）</option>';
+            } else {
+                s.forEach(function(x) { opt += '<option>' + esc(x) + '</option>'; });
+            }
             document.getElementById('in-src').innerHTML = opt;
             document.getElementById('in-src').value = it.src || (s[0] || '');
 
@@ -1317,6 +1317,7 @@
                 img: document.getElementById('in-img').value,
                 link: document.getElementById('in-link').value,
                 cur: document.getElementById('in-cur').value,
+                payment: document.getElementById('in-payment').value,
                 note: document.getElementById('in-note').value,
                 me: me,
                 dai: dai,
@@ -1366,18 +1367,42 @@
         }
 
         function openSrcs() {
-            // 支援舊格式（逗號）和新格式（換行）
             var srcs = cfg.srcs || '';
             var lines = srcs.indexOf('\n') >= 0
-                ? srcs
-                : srcs.split(',').map(function(s){ return s.trim(); }).filter(Boolean).join('\n');
-            document.getElementById('cfg-srcs').value = lines;
+                ? srcs.split('\n').map(function(s){ return s.trim(); }).filter(Boolean)
+                : srcs.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+            var wrap = document.getElementById('src-tag-wrap');
+            wrap.innerHTML = '';
+            lines.forEach(function(s) { renderSrcTag(s); });
+            document.getElementById('src-tag-input').value = '';
             openModal('srcs-modal');
         }
 
+        function renderSrcTag(name) {
+            var wrap = document.getElementById('src-tag-wrap');
+            var span = document.createElement('span');
+            span.className = 'src-tag-item';
+            span.innerHTML = esc(name) + ' <button class="src-tag-del" onclick="this.closest(\'.src-tag-item\').remove()">×</button>';
+            wrap.appendChild(span);
+        }
+
+        function addSrcTag() {
+            var input = document.getElementById('src-tag-input');
+            var v = input.value.trim();
+            if (!v) return;
+            renderSrcTag(v);
+            input.value = '';
+            input.focus();
+        }
+
         function saveSrcs() {
-            // 儲存為換行格式
-            cfg.srcs = document.getElementById('cfg-srcs').value.trim();
+            var items = document.querySelectorAll('#src-tag-wrap .src-tag-item');
+            var names = [];
+            items.forEach(function(el) {
+                var text = el.childNodes[0].textContent.trim();
+                if (text) names.push(text);
+            });
+            cfg.srcs = names.join('\n');
             localStorage.setItem('merch_v28_cfg', JSON.stringify(cfg));
             render();
             closeModal('srcs-modal');
@@ -1390,6 +1415,8 @@
             var DELAY = 320;
             if (type === 'rate') {
                 setTimeout(openConfig, DELAY);
+            } else if (type === 'cost') {
+                setTimeout(openCostModal, DELAY);
             } else if (type === 'sources') {
                 setTimeout(openSrcs, DELAY);
             } else if (type === 'export') {
@@ -1405,6 +1432,7 @@
                 it.done = !it.done;
                 if (it.done) {
                     it.doneAt = Date.now();
+                    it.payment = 'paid';
                     save(); render();
                     showToastUndo('已封存「' + it.name + '」', function() {
                         it.done = false;
@@ -1454,9 +1482,9 @@
         function openModal(id) {
             var el = document.getElementById(id);
             el.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
             requestAnimationFrame(function() {
                 el.classList.add('show');
-                // scroll modal 內容到頂部
                 var modal = el.querySelector('.modal');
                 if (modal) modal.scrollTop = 0;
             });
@@ -1465,11 +1493,13 @@
         function closeModal(id) {
             var el = document.getElementById(id);
             el.classList.remove('show');
-            // 重置 touch 狀態，防止彈窗關閉後誤觸發卡片展開
             cMoved = false; cScrolled = true;
+            // 檢查是否還有其他開著的 modal
             setTimeout(function() {
                 el.style.display = 'none';
                 cScrolled = false;
+                var anyOpen = document.querySelectorAll('.overlay.show').length > 0;
+                if (!anyOpen) document.body.style.overflow = '';
             }, 350);
         }
 
@@ -1477,34 +1507,6 @@
             if (e.target === e.currentTarget) closeModal(id);
         }
 
-        // 卡片/列表模式
-        var isCompact = localStorage.getItem('merch_compact') === '1';
-        function setMode(m) {
-            isCompact = (m === 'list');
-            localStorage.setItem('merch_compact', isCompact ? '1' : '0');
-            applyCompactMode();
-        }
-        function applyCompactMode() {
-            var wrapper = document.getElementById('page-wrapper');
-            wrapper.className = isCompact ? 'mode-compact' : 'mode-normal';
-            var cardBtn = document.getElementById('seg-card');
-            var listBtn = document.getElementById('seg-list');
-            if (cardBtn) cardBtn.classList.toggle('active', !isCompact);
-            if (listBtn) listBtn.classList.toggle('active', isCompact);
-        }
-
-        function toggleCompactBox(id) {
-            var box = document.getElementById('cc-box-' + id);
-            if (!box) return;
-            var isOpen = box.classList.contains('open');
-            box.classList.toggle('open');
-            // 展開時移除 cc-swipe-area 下方圓角，收起時還原
-            var card = document.getElementById('cc-card-' + id);
-            if (card) {
-                var swipeArea = card.closest('.cc-swipe-area');
-                if (swipeArea) swipeArea.classList.toggle('expanded', !isOpen);
-            }
-        }
         function toggleSearch() {
             searchOpen = !searchOpen;
             document.getElementById('search-container').classList.toggle('open', searchOpen);
@@ -1517,7 +1519,6 @@
         }
         function filterSearch(q) {
             var kw = q.trim().toLowerCase();
-            // 卡片模式
             document.querySelectorAll('#list-active .swipe-container, #list-archive .swipe-container').forEach(function(el) {
                 var hide = kw && !(el.dataset.search || '').toLowerCase().includes(kw);
                 el.style.display = hide ? 'none' : '';
@@ -1526,29 +1527,31 @@
                 var gap = next && next.classList.contains('detail-box') ? next.nextElementSibling : next;
                 if (gap && gap.classList.contains('no-detail-gap')) gap.style.display = hide ? 'none' : '';
             });
-            // 列表模式
-            document.querySelectorAll('#list-active .cc-swipe-container, #list-archive .cc-swipe-container').forEach(function(el) {
-                var hide = kw && !(el.dataset.search || '').toLowerCase().includes(kw);
-                el.style.display = hide ? 'none' : '';
-                var next = el.nextElementSibling;
-                if (next && next.classList.contains('detail-compact')) next.style.display = hide ? 'none' : '';
-            });
         }
 
         function exportData() {
-            var json = JSON.stringify(db, null, 2);
-            var blob = new Blob([json], {type: 'application/json'});
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            var date = new Date().toISOString().slice(0,10);
-            a.href = url;
-            a.download = 'merch-backup-' + date + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            localStorage.setItem('merch_last_backup', Date.now());
-            showToast('備份檔案已下載');
+            document.getElementById('export-count').textContent = db.length;
+            openModal('export-modal');
+        }
+
+        function doExport() {
+            closeModal('export-modal');
+            setTimeout(function() {
+                var json = JSON.stringify(db, null, 2);
+                var blob = new Blob([json], {type: 'application/json'});
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                var date = new Date().toISOString().slice(0,10);
+                a.href = url;
+                a.download = 'merch-backup-' + date + '.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                localStorage.setItem('merch_last_backup', Date.now());
+                showToast('備份檔案已下載');
+                updateBackupHint();
+            }, 300);
         }
 
         function importData() {
